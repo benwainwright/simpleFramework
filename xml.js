@@ -1,6 +1,5 @@
 var gen = (function() {
    "use strict"
-
    var that;
 
    function startMarkup() {
@@ -45,6 +44,7 @@ var gen = (function() {
       this.children.push(child);
       return child;
    }
+
    function newSibling(name) {
       var sibling = Xml(name, this.parent);
       this.parent.children.push(sibling);
@@ -59,6 +59,11 @@ var gen = (function() {
    function clearChildren()
    {
       this.children = [];
+   }
+
+   function clearAttrs()
+   {
+      this.attributes = {};
    }
 
    function setVoid()
@@ -135,6 +140,7 @@ var gen = (function() {
       text: text,
       tabs: tabs,
       clearChildren: clearChildren,
+      clearAttrs: clearAttrs,
       removeChild: removeChild
    };
 

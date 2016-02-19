@@ -1,21 +1,20 @@
 var gen = (function() {
 
    "use strict"
-
    var xmlGen = require("./xml");
-
 
    function Html() {
       var titleText;
       var page = xmlGen.create("html");
       var titleNode;
       var styleSheetNodes;
+      var language;
       var styleSheets
       var head = this.head = page.child("head");
       this.body = page.child("body");
       var that = this;
       var doctype = "html";
-      
+      var external = {};
 
       var properties = {
          title: {
@@ -23,41 +22,51 @@ var gen = (function() {
             set: setTitle,
             get: getTitle
          },
-
+         lang: {
+            configurable: false,
+            set: setLang,
+            get: getLang
+         },
          stylesheet: {
             configurable: false,
             value: addStyleSheet,
             writable: false
          },
-
          markup: {
-            value: htmlMarkup
+            value: htmlMarkup,
+            configurable: false,
+            writable: false
          }
       };
 
+      Object.defineProperties(external, properties);
 
       function htmlMarkup() {
-         var proto = Object.getPrototypeOf(this);
+         var proto = Object.getPrototypeOf(page);
          var markup = "<!DOCTYPE " + doctype + ">\n";
-         markup += proto.markup.call(this);
+         markup += proto.markup.call(page);
          return markup;
       }
 
-      function addStyleSheet(fileName) {
+      function addStyleSheet(fileName, media) {
          if(styleSheetNodes === undefined) {
             styleSheetNodes = [];
          }
 
          var newSheet = that.head.child("link").
-            setVoid().
-            attribute("rel", "stylesheet").
-            attribute("type", "text/css").
-            attribute("href", fileName);
+                                      setVoid().
+                 attribute("rel", "stylesheet").
+                  attribute("type", "text/css").
+                    attribute("href", fileName);
+
+         if(media !== undefined) {
+            newSheet.attribute("media", media);
+         }
+
          styleSheetNodes.push(newSheet);
          return this;
       }
 
-      Object.defineProperties(page, properties);
 
       function setTitle(value) {
          titleText = value;
@@ -72,7 +81,19 @@ var gen = (function() {
       function getTitle() {
          return text;
       }
-      return page;
+
+      function setLang(value) {
+         language = value;
+         page.clearAttrs();
+         page.attribute("lang", value)
+             .attribute("xml:lang", value);
+      }
+
+      function getLang() {
+         return language;
+      }
+
+      return external;
    }
 
  
@@ -80,9 +101,11 @@ var gen = (function() {
       html: Html
    }
 }());
+module.exports.newPage = gen.html;
 
 var page = gen.html();
 page.title = "test";
+page.lang = "en-GB";
 page.stylesheet("test.css").stylesheet("main.css");
 
 console.log(page.markup());
