@@ -103,14 +103,6 @@ var gen = (function() {
 }());
 module.exports.newPage = gen.html;
 
-var page = gen.html();
-page.title = "test";
-page.lang = "en-GB";
-page.stylesheet("test.css").stylesheet("main.css");
-
-console.log(page.markup());
-
-
 
 
 
