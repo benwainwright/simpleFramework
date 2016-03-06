@@ -1,13 +1,19 @@
 (function() {
    "use strict";
 
+   /* Built in modules */
    var http = require('http');
+   var url  = require('url');
+   var fs   = require('fs');
+
+   /* My modules */
    var pageGen = require('./htmlGen');
-   var url = require('url');
-   var fs = require('fs');
-   var PORT = 1234;
 
-
+   /* Constants */
+   var HANDLERS = 'handlers';
+   var HOSTNAME = 'localhost';
+   var BACKLOG  = 511;
+   var PORT     = 1234;
    var httpCode = {
       OK          : 200,
       NOT_FOUND   : 404
@@ -19,7 +25,6 @@
     * html.
     */
    var fileTypes = {
-
       'js'  : {
          contentType: 'text/javascript',
          dirs       : ['build']
@@ -31,11 +36,29 @@
       }
    };
 
+   function routePages(path, response) {
+      var handler;
+      var page = path.split('/')[0];
+      var handlerPath = './' + HANDLERS + '/' + page;
+      var file = fs.lstatSync(handlerPath + '.js');
+
+      if(file.isFile()) {
+         handler = require(handlerPath);
+         handler.buildPage(path);
+         response.write(handler.markup());
+         response.end();
+      }
+      else {
+         notFound(response);
+      }
+   }
+   
    function handler(request, response) {
       var reqUrl, path;
       logRequest(request);
       reqUrl = url.parse(request.url, true);
       path = reqUrl.pathname;
+
       if(path.split('.').length > 1) {
          serveFile(path, response);
       } else {
@@ -71,13 +94,13 @@
 
       if(fileTypes.hasOwnProperty(extension) &&
          fileTypes[extension].dirs.indexOf(dir) != -1) {
-         fs.readFile(dir + '/' + name,  'utf8', fileHandler);
+         fs.readFile(dir + '/' + name,  'utf8', readHandler);
       }
       else {
          throw "Not allowed";
       }
 
-      function fileHandler(err, contents) {
+      function readHandler(err, contents) {
          response.writeHead(httpCode.OK, head);
          response.write(contents);
          response.end();
@@ -102,5 +125,15 @@
    }
 
    var serv = http.createServer(handler);
-   serv.listen(PORT, 'localhost');
+
+   serv.listen(PORT, HOSTNAME, BACKLOG, onListen);
+
+   function onListen() {
+      console.log('Server at '         +
+                  HOSTNAME             + 
+                  ' listening on port ' + 
+                  PORT);
+   }
+
 }());
+
