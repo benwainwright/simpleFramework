@@ -1,5 +1,6 @@
+/* jshint node: true */
 (function() {
-   "use strict";
+   'use strict';
 
    /* Built in modules */
    var http = require('http');
@@ -11,31 +12,43 @@
 
    /* Constants */
    var BACKLOG  = 511;
-   var CONFIGFILE   = "config.json";
+   var CONFIGFILE   = 'config.json';
    var httpCode = {
       OK          : 200,
       NOT_FOUND   : 404
    };
 
-   /* Module objects */
    var config;
+
+   function handler(request, response) {
+      var reqUrl, path;
+      reqUrl = url.parse(request.url, true);
+      path = reqUrl.pathname;
+
+      if(path.split('.').length > 1) {
+         serveFile(path, response);
+      } else {
+         routePages(path, response);
+      }
+      logRequest(request, response);
+   }
+
    var serv = http.createServer(handler);
 
-   configureAndStart(CONFIGFILE);
-
+   
    function configureAndStart(fileName) {
-      fs.readFile(fileName, 'utf8', configHandler);
       function configHandler(err, contents) {
          if(err) {
-            console.log("Configuration file ('" + 
+            console.log('Configuration file (\'' + 
                         fileName                +
-                        "') could not be read. Does it exist?");
+                        '\') could not be read. Does it exist?');
          }
          else {
             try {
                config = JSON.parse(contents);
             } catch(e) {
-               console.log("Error when parsing configuration file: " + e);
+               console.log('Error when parsing configuration file: ' +
+                           e);
             }
             serv.listen(config.ports.http, 
                         config.host,
@@ -43,7 +56,10 @@
                         onListen);
          }
       }
+      fs.readFile(fileName, 'utf8', configHandler);
    }
+
+   configureAndStart(CONFIGFILE);
 
    function onListen() {
       console.log('Server at '          +
@@ -70,25 +86,12 @@
       }
    }
    
-   function handler(request, response) {
-      var reqUrl, path;
-      reqUrl = url.parse(request.url, true);
-      path = reqUrl.pathname;
-
-      if(path.split('.').length > 1) {
-         serveFile(path, response);
-      } else {
-         routePages(path, response);
-      }
-      logRequest(request, response);
-   }
-
    function getContentType(extension) {
       if(config.types.hasOwnProperty(extension)) {
          return config.types[extension].type;
       }
       else {
-         throw "Not allowed";
+         throw 'Not allowed';
       }
    }
 
@@ -110,15 +113,6 @@
       var name = parts[parts.length - 1];
       var dir = parts[parts.length - 2];
 
-      if(config.types.hasOwnProperty(extension) &&
-         config.types[extension].dirs.indexOf(dir) != -1) {
-         fs.readFile(dir + '/' + name,  'utf8', serveHandler);
-         response.servedWith = dir + '/' + name;
-      }
-      else {
-         throw "Not allowed";
-      }
-
       function serveHandler(err, contents) {
          if(err) {
             notFound(response);
@@ -128,15 +122,27 @@
             response.end();
          }
       }
-   }
+ 
+      if(config.types.hasOwnProperty(extension) &&
+         config.types[extension].dirs.indexOf(dir) !== -1) {
+         fs.readFile(dir + '/' + name,  'utf8', serveHandler);
+         response.servedWith = dir + '/' + name;
+      }
+      else {
+         throw 'Not allowed';
+      }
+
+  }
 
    function logRequest(request, response) {
       var d = new Date();
-      var log = "when [" + d.toTimeString() + " " + d.toDateString() + "] - " + 
-                "from [" + request.connection.remoteAddress  + "] - " +
-                "request [" + request.method + " " + request.url + "]";
+      var log = 'when [' + d.toTimeString()                  + 
+                ' ' + d.toDateString() + '] - '              + 
+                'from [' + request.connection.remoteAddress  + 
+                '] - ' + 'request [' + request.method + ' '  + 
+                request.url + ']';
       if(response.servedWith !== undefined) {
-         log += " - served [" + response.servedWith + "]";
+         log += ' - served [' + response.servedWith + ']';
       }
       console.log(log);
    }
@@ -145,9 +151,8 @@
       response.writeHead(httpCode.NOT_FOUND,
                          {'Content-type': 'text/plain'});
       response.write('Not found :-(');
-      response.servedWith = "notFound()";
+      response.servedWith = 'notFound()';
       response.end();
    }
-
 }());
 
