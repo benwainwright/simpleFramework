@@ -10,52 +10,68 @@
    var pageGen = require('./htmlGen');
 
    /* Constants */
-   var HANDLERS = 'handlers';
-   var HOSTNAME = 'localhost';
    var BACKLOG  = 511;
-   var PORT     = 1234;
+   var CONFIGFILE   = "config.json";
    var httpCode = {
       OK          : 200,
       NOT_FOUND   : 404
    };
 
-   /* 
-    * Minimal set of content types as this server is not designed to serve
-    * raw HTML files, only the resources which are needed alongside generated
-    * html.
-    */
-   var fileTypes = {
-      'js'  : {
-         contentType: 'text/javascript',
-         dirs       : ['build']
-      },
+   /* Module objects */
+   var config;
+   var serv = http.createServer(handler);
 
-      'css' : {
-         contentType: 'text/css',
-         dirs       : ['css']
+   configureAndStart(CONFIGFILE);
+
+   function configureAndStart(fileName) {
+      fs.readFile(fileName, 'utf8', configHandler);
+      function configHandler(err, contents) {
+         if(err) {
+            console.log("Configuration file ('" + 
+                        fileName                +
+                        "') could not be read. Does it exist?");
+         }
+         else {
+            try {
+               config = JSON.parse(contents);
+            } catch(e) {
+               console.log("Error when parsing configuration file: " + e);
+            }
+            serv.listen(config.ports.http, 
+                        config.host,
+                        BACKLOG, 
+                        onListen);
+         }
       }
-   };
+   }
+
+   function onListen() {
+      console.log('Server at '          +
+                  config.host           + 
+                  ' listening on port ' + 
+                  config.ports.http);
+   }
 
    function routePages(path, response) {
-      var handler;
-      var page = path.split('/')[0];
-      var handlerPath = './' + HANDLERS + '/' + page;
-      var file = fs.lstatSync(handlerPath + '.js');
+      var handler, handlerPath, file;
 
-      if(file.isFile()) {
+      var page = (path === '/')?
+         'home' : path.split('/')[0];
+
+      handlerPath = './' + config.handlersDir + '/' + page;
+      try {
+         file = fs.lstatSync(handlerPath + '.js');
          handler = require(handlerPath);
-         handler.buildPage(path);
+         response.servedWith = handlerPath + '.js';
          response.write(handler.markup());
          response.end();
-      }
-      else {
+      } catch(e) {
          notFound(response);
       }
    }
    
    function handler(request, response) {
       var reqUrl, path;
-      logRequest(request);
       reqUrl = url.parse(request.url, true);
       path = reqUrl.pathname;
 
@@ -64,11 +80,12 @@
       } else {
          routePages(path, response);
       }
+      logRequest(request, response);
    }
 
    function getContentType(extension) {
-      if(fileTypes.hasOwnProperty(extension)) {
-         return fileTypes[extension].contentType;
+      if(config.types.hasOwnProperty(extension)) {
+         return config.types[extension].type;
       }
       else {
          throw "Not allowed";
@@ -87,52 +104,49 @@
       }
    }
 
+
    function serveContents(file, extension, response, head) {
       var parts = file.split('/');
       var name = parts[parts.length - 1];
       var dir = parts[parts.length - 2];
 
-      if(fileTypes.hasOwnProperty(extension) &&
-         fileTypes[extension].dirs.indexOf(dir) != -1) {
-         fs.readFile(dir + '/' + name,  'utf8', readHandler);
+      if(config.types.hasOwnProperty(extension) &&
+         config.types[extension].dirs.indexOf(dir) != -1) {
+         fs.readFile(dir + '/' + name,  'utf8', serveHandler);
+         response.servedWith = dir + '/' + name;
       }
       else {
          throw "Not allowed";
       }
 
-      function readHandler(err, contents) {
-         response.writeHead(httpCode.OK, head);
-         response.write(contents);
-         response.end();
+      function serveHandler(err, contents) {
+         if(err) {
+            notFound(response);
+         } else {
+            response.writeHead(httpCode.OK, head);
+            response.write(contents);
+            response.end();
+         }
       }
    }
 
-   function logRequest(request) {
-      console.log(request.method + " " + request.url);
+   function logRequest(request, response) {
+      var d = new Date();
+      var log = "when [" + d.toTimeString() + " " + d.toDateString() + "] - " + 
+                "from [" + request.connection.remoteAddress  + "] - " +
+                "request [" + request.method + " " + request.url + "]";
+      if(response.servedWith !== undefined) {
+         log += " - served [" + response.servedWith + "]";
+      }
+      console.log(log);
    }
-   
-   function buildResponse(response) {
-      response.writeHead(200, buildHeaders());
-      response.write("OK");
-      response.end();
-   }
-
+  
    function notFound(response) {
       response.writeHead(httpCode.NOT_FOUND,
                          {'Content-type': 'text/plain'});
       response.write('Not found :-(');
+      response.servedWith = "notFound()";
       response.end();
-   }
-
-   var serv = http.createServer(handler);
-
-   serv.listen(PORT, HOSTNAME, BACKLOG, onListen);
-
-   function onListen() {
-      console.log('Server at '         +
-                  HOSTNAME             + 
-                  ' listening on port ' + 
-                  PORT);
    }
 
 }());

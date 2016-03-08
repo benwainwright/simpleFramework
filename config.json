@@ -1,0 +1,18 @@
+{
+   "handlersDir" : "handlers",
+   "host" : "localhost",
+   "ports" : {
+      "http"  : 1233,
+      "https" : 4322
+   },
+   "types" : {
+      "js" : {
+         "type" : "text/javascript",
+         "dirs" : ["scripts"]
+      },
+      "css" : {
+         "type" : "text/css",
+         "dirs" : ["css"]
+      }
+   }
+}
