@@ -1,0 +1,23 @@
+{
+   "node"          : true,
+   "latedef"       : true,
+   "curly"         : true,
+   "eqeqeq"        : true,
+   "forin"         : true,
+   "freeze"        : true,
+   "funcscope"     : false,
+   "latedef"       : "nofunc",
+   "maxparams"     : 4,
+   "maxdepth"      : 3,
+   "maxcomplexity" : 5,
+   "nocomma"       : true,
+   "nonbsp"        : true,
+   "nonew"         : true,
+   "notypeof"      : false,
+   "shadow"        : false,
+   "singleGroups"  : true,
+   "strict"        : true,
+   "undef"         : true,
+   "unused"        : true,
+   "varstmt"       : false
+}
