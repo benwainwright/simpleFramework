@@ -1,8 +1,8 @@
 {
-  "name": "showServer",
+  "name": "MovieServer",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
     "test": "node tests/all.js",
     "start": "node server.js"
@@ -16,7 +16,6 @@
   "devDependencies": {
     "del": "^2.2.0",
     "gulp": "^3.9.1",
-    "gulp-clean": "^0.3.2",
     "qunit": "^0.9.0"
   },
   "dependencies": {
