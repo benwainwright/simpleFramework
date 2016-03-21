@@ -1,7 +1,6 @@
 {
    "maxErrors"                                 : null,
    "validateIndentation"                       : 3,
-   "disallowAnonymousFunctions"                : true,
    "disallowDanglingUnderscores"               : true,
    "disallowEmptyBlocks"                       : true,
    "disallowImplicitTypeConversion"            : ["numeric", "boolean", "binary", "string"],
@@ -39,7 +38,7 @@
    "requireBlocksOnNewline"                    : true,
    "requireCamelCaseOrUpperCaseIdentifiers"    : true,
    "requireCapitalizedComments"                : true,
-   "requireCapitalisedConstructor"             : true,
+   "requireCapitalizedConstructors"            : true,
    "requireCommaBeforeLineBreak"               : true,
    "requireCurlyBraces"                        : true,
    "requireLineBreakAfterVariableAssignment"   : true,

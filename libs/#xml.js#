@@ -1,8 +1,15 @@
 var gen = (function() {
-   "use strict"
-   var that;
+   "use strict";
 
-   function startMarkup() {
+   var tabs = function tabs(level) {
+      var i, output = "";
+      for(i = 0; i < level; i++) {
+         output += "\t";
+      }
+      return output;
+   };
+
+   var startMarkup = function startMarkup() {
       var markup = "";
       if(this.inline === false &&
          this.level > 0) {
@@ -18,17 +25,9 @@ var gen = (function() {
       }
       markup += ">";
       return markup;
-   }
+   };
 
-   function tabs(level) {
-      var output = "";
-      for(var i = 0; i < level; i++) {
-         output += "\t";
-      }
-      return output;
-   }
-
-   function endMarkup() {
+   var endMarkup = function endMarkup() {
       var markup = "";
       if(this.void === false) {
          if(this.inline === false && this.single === false) {
@@ -37,77 +36,72 @@ var gen = (function() {
          markup += "</" + this.name + ">";
       }
       return markup;
-   }
+   };
 
-   function newChild(name) {
+   var newChild = function newChild(name) {
       var child = Xml(name, this);
       this.children.push(child);
       return child;
-   }
+   };
 
-   function newSibling(name) {
+   var newSibling = function newSibling(name) {
       var sibling = Xml(name, this.parent);
       this.parent.children.push(sibling);
       return sibling;
-   }
+   };
 
-   function attribute(name, value) {
+   var attribute = function attribute(name, value) {
       this.attributes[name] = value;
       return this;
-   }
+   };
 
-   function clearChildren()
-   {
+   var clearChildren = function clearChildren() {
       this.children = [];
-   }
+   };
 
-   function clearAttrs()
-   {
+   var clearAttrs = function clearAttrs() {
       this.attributes = {};
-   }
+   };
 
-   function setVoid()
-   {
+   var setVoid = function setVoid() {
       this.void = true;
       return this;
-   }
+   };
 
-   function setInline()
-   {
+   var setInline = function setInline() {
       this.inline = true;
       return this;
-   }
+   };
 
-   function setSingle()
-   {
+   var setSingle = function setSingle() {
       this.single = true;
       return this;
-   }
+   };
 
-   function removeChild(node) {
+   var removeChild = function removeChild(node) {
       var index = this.children.indexOf(node);
       var removed;
       if(index >= 0) {
          removed = this.children.splice(index, 1);
       }
       return removed[0];
-   }
+   };
 
-   function attrMarkup() {
-      var markup = "";
-      for(var attr in this.attributes) {
+   var attrMarkup = function attrMarkup() {
+      var attr, markup = "";
+      for(attr in this.attributes) {
          if(this.attributes.hasOwnProperty(attr)) {
             markup += " "                   +
-                      attr                  + 
-                      "=\""                 + 
-                      this.attributes[attr] + 
+                      attr                  +
+                      "=\""                 +
+                      this.attributes[attr] +
                       "\"";
          }
       }
       return markup;
-   }
+   };
 
-   function markup() {
+   var markup = function markup() {
       var markup = "";
       markup += this.startMarkup();
       for(var i = 0; i < this.children.length; i++) {
@@ -120,70 +114,67 @@ var gen = (function() {
       }
       markup += this.endMarkup();
       return markup;
-   }
+   };
 
-   function text(string) {
+   var text = function text(string) {
       this.children.push(string);
-   }
+   };
 
    var xml = {
-      markup: markup,
-      attrMarkup: attrMarkup,
-      startMarkup: startMarkup,
-      endMarkup: endMarkup,
-      child: newChild,
-      sibling: newSibling,
-      attribute: attribute,
-      setInline: setInline,
-      setSingle: setSingle,
-      setVoid: setVoid,
-      text: text,
-      tabs: tabs,
+      markup       : markup,
+      attrMarkup   : attrMarkup,
+      startMarkup  : startMarkup,
+      endMarkup    : endMarkup,
+      child        : newChild,
+      sibling      : newSibling,
+      attribute    : attribute,
+      setInline    : setInline,
+      setSingle    : setSingle,
+      setVoid      : setVoid,
+      text         : text,
+      tabs         : tabs,
       clearChildren: clearChildren,
-      clearAttrs: clearAttrs,
-      removeChild: removeChild
+      clearAttrs   : clearAttrs,
+      removeChild  : removeChild
    };
 
    function Xml(name, parent) {
-
       var properties = {
-         name: {
+         name      : {
             configurable: false,
-            writable: false, 
-            value: name
+            writable    : false,
+            value       : name
          },
-         children: {
-            writable: true,
-            configurable: false, 
-            value: []
-         },
+         children  : {
+            writable    : true,
+            configurable: false,
+            value       : []},
          attributes: {
-            writable: true,
+            writable    : true,
             configurable: false,
-            value: {} 
+            value       : {}
          },
-         void: {
-            writable: true, 
-            configurable: false, 
-            value: false
+         void      : {
+            writable    : true,
+            configurable: false,
+            value       : false
          },
-         inline: {
-            writable: true,
+         inline    : {
+            writable     : true,
             configureable: false,
-            value: false
+            value        : false
          },
-         single: {
-            writable: true,
+         single    : {
+            writable     : true,
             configureable: false,
-            value: false
+            value        : false
          }
       };
-
       var xmlObj = Object.create(xml, properties);
+
       if(parent === undefined) {
          xmlObj.level = 0;
-      }
-      else {
+      } else {
          xmlObj.parent = parent;
          xmlObj.level = parent.level + 1;
       }

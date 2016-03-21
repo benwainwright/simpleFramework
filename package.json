@@ -1,0 +1,24 @@
+{
+  "name": "showServer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:benwainwright/htmlgen.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2"
+  },
+  "dependencies": {
+    "clear-require": "^1.0.1"
+  }
+}

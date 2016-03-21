@@ -1,18 +1,20 @@
 {
-   "handlersDir" : "handlers",
-   "host" : "localhost",
-   "ports" : {
-      "http"  : 1233,
-      "https" : 4322
+   "ports": {
+      "http"  : 2343,
+      "https" : 3456
    },
-   "types" : {
-      "js" : {
-         "type" : "text/javascript",
-         "dirs" : ["scripts"]
+   "types": {
+      "css"    : {
+         "dirs": ["styles"],
+         "type": "text/css"
       },
-      "css" : {
-         "type" : "text/css",
-         "dirs" : ["css"]
+      "js": {
+         "dirs": ["scripts"],
+         "type": "application/javascript"
+      },
+      "ico": {
+         "dirs": ["icons"]
       }
-   }
+   },
+   "host" : "localhost" 
 }
