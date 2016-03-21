@@ -15,9 +15,9 @@ module.exports = (function server() {
       OK       : 200,
       NOT_FOUND: 404
    };
-   var RESOURCESDIR = "resources";
 
-   var serv = http.createServer(requestHandler);
+   var RESOURCESDIR = "resources";
+   var serv         = http.createServer(requestHandler);
 
    function requestHandler(request, response) {
       var reqUrl, path;
@@ -35,7 +35,7 @@ module.exports = (function server() {
    function routePages(path, response) {
       var handler, handlerPath, file;
       var parts = path.split("/");
-      var page = path === "/"? "" : firstValidPathName(parts);
+      var page  = path === "/"? "" : firstValidPathName(parts);
       try {
          router.load(page, response, writeResponse);
          response.servedWith = router.last(); // TODO FIX THIS
@@ -44,9 +44,6 @@ module.exports = (function server() {
       }
    }
 
-   /*
-    * Write markup from the router module into the HTTP request
-    */
    function writeResponse(content, response, head) {
       if(head === undefined) {
          head = getDefaultHeader();
@@ -57,9 +54,9 @@ module.exports = (function server() {
    }
 
    function serveFile(file, response) {
-      var head;
-      var parts = file.split(".");
+      var parts     = file.split(".");
       var extension = parts[parts.length - 1];
+      var head;
       try {
          head = { "Content-type": getContentType(extension) };
          serveContents(file, extension, response, head);
@@ -69,9 +66,9 @@ module.exports = (function server() {
    }
 
    function serveContents(file, extension, response, head) {
-      var parts = file.split("/");
-      var name = parts[parts.length - 1];
-      var dir = parts[parts.length - 2];
+      var parts    = file.split("/");
+      var name     = parts[parts.length - 1];
+      var dir      = parts[parts.length - 2];
       var fileName = RESOURCESDIR + "/" +
                      dir          + "/" +
                      name;
@@ -102,13 +99,15 @@ module.exports = (function server() {
 
    /* TODO Revise this validation scheme */
    function firstValidPathName(parts) {
-      var match = new RegExp("[a-zA-Z0-9]+");
-      for(var i = 0; i < parts.length; i++) {
+      var i, match = new RegExp("[a-zA-Z0-9]+");
+      for(i = 0; i < parts.length; i++) {
          if(match.test(parts[i]) === true) {
             return parts[i];
          }
       }
+      return "";
    }
+
    function getContentType(extension) {
       if(config.types.hasOwnProperty(extension)) {
          return config.types[extension].type;
@@ -118,7 +117,7 @@ module.exports = (function server() {
    }
 
    function logRequest(request, response) {
-      var d = new Date();
+      var d   = new Date();
       var log = "when [" + d.toTimeString()                  +
                 " " + d.toDateString() + "] - "              +
                 "from [" + request.connection.remoteAddress  +
