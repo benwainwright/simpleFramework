@@ -1,3 +1,8 @@
+/*
+ * Main module for our web server, responsble for parsing
+ * the command line, then loading and initialising the
+ * necessary components.
+ */
 module.export = (function Main() {
    "use strict";
 
@@ -7,8 +12,16 @@ module.export = (function Main() {
 
    process.argv.forEach(parseCommandLine);
 
-   function startServer(config) {
-      server = server.start(config);
+   function parseCommandLine(val, index, array) {
+      switch(val) {
+         case "--NOREQCACHE" : noCache = true; break;
+      }
+
+      if(index === array.length - 1) {
+         loadLibs();
+         initLibs();
+         config.onLoad(startServer);
+      }
    }
 
    function loadLibs() {
@@ -25,17 +38,7 @@ module.export = (function Main() {
       server.setRouter(router);
    }
 
-   function parseCommandLine(val, index, array) {
-      switch(val) {
-         case "--NOREQCACHE" : noCache = true; break;
-      }
-
-      if(index === array.length - 1) {
-         loadLibs();
-         initLibs();
-         config.onLoad(startServer);
-      }
+   function startServer(config) {
+      server = server.start(config);
    }
 }());
-
-

@@ -3,12 +3,11 @@ module.exports = (function() {
    var handlebars       = require("handlebars");
    var handlers         = "handlers";
    var templates        = "templates";
-   var loadCallback;
    var notFoundPage     = "notfound";
    var indexPage        = "index";
    var serverErrorPage  = "error";
 
-   var config;
+   var loadCallback, response, config;
 
    function templPath(name) {
       return process.cwd()   +
@@ -23,22 +22,18 @@ module.exports = (function() {
               "/" + name + ".js";
    };
 
-   var templateExists = function(template) {
-      try {
-         fs.lstatSync(templPath(template));
-         return true;
-      } catch(e) {
-         return false;
+   function notFound(resp, callback) {
+      if(callback === undefined) {
+         callback = loadCallback;
       }
-   };
-
-   function notFound() {
-      loadPage(notFoundPage, loadCallback);
+      loadPage(notFoundPage, resp, callback);
    }
 
-
-   function serverError() {
-      loadPage(serverErrorPage, loadCallback);
+   function serverError(resp, callback) {
+      if(callback === undefined) {
+         callback = loadCallback;
+      }
+      loadPage(serverErrorPage, resp, callback);
    }
 
    function serveTemplate(templateText, data) {
@@ -47,24 +42,26 @@ module.exports = (function() {
       try {
          template = handlebars.compile(templateText, options);
          if(data !== undefined) {
-            loadCallback(template(data));
+            loadCallback(template(data), response);
          } else {
-            loadCallback(templateText);
+            loadCallback(templateText, response);
          }
       } catch(e) {
          serverError();
       }
    }
 
-   var loadPage = function loadPage(template, callback) {
+   var loadPage = function loadPage(template, resp, callback) {
       loadCallback = callback;
+      response     = resp;
+
       var data, handler;
       var template = template === ""? "index" : template;
       try {
          handler = require(handlerPath(template));
          lastHandler = template;
          if(handler.markup !== undefined) {
-            callback(handler.markup());
+            callback(handler.markup(), response);
          } else {
             if(typeof handler.data === "function") {
                data = handler.data();
@@ -97,7 +94,6 @@ module.exports = (function() {
       last        : function() {
          return lastHandler;
       },
-      exists      : templateExists,
       load        : loadPage,
       notFound    : notFound,
       serverError : serverError,

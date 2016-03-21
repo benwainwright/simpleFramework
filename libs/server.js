@@ -7,7 +7,7 @@ module.exports = (function server() {
    var fs     = require("fs");
 
    /* Dependencies */
-   var router;
+   var router, config;
 
    /* Constants */
    var BACKLOG      = 511;
@@ -17,11 +17,9 @@ module.exports = (function server() {
    };
    var RESOURCESDIR = "resources";
 
-   var serv = http.createServer(handler);
-   var config;
+   var serv = http.createServer(requestHandler);
 
-
-   function handler(request, response) {
+   function requestHandler(request, response) {
       var reqUrl, path;
       reqUrl = url.parse(request.url, true);
       path   = reqUrl.pathname;
@@ -34,44 +32,28 @@ module.exports = (function server() {
       logRequest(request, response);
    }
 
-   function onListen() {
-      console.log("Server at "          +
-                  config.host           +
-                  " listening on port " +
-                  config.ports.http);
-   }
-
-   /* TODO Revise this validation scheme */
-   function firstValidPathName(parts) {
-      var match = new RegExp("[a-zA-Z0-9]+");
-      for(var i = 0; i < parts.length; i++) {
-         if(match.test(parts[i]) === true) {
-            return parts[i];
-         }
-      }
-   }
-
    function routePages(path, response) {
       var handler, handlerPath, file;
       var parts = path.split("/");
       var page = path === "/"? "" : firstValidPathName(parts);
       try {
-         router.load(page, function(text) {
-            response.write(text);
-            response.end();
-         });
+         router.load(page, response, writeResponse);
          response.servedWith = router.last(); // TODO FIX THIS
       } catch(e) {
          console.log(e.stack);
       }
    }
 
-   function getContentType(extension) {
-      if(config.types.hasOwnProperty(extension)) {
-         return config.types[extension].type;
-      } else {
-         throw "Not allowed";
+   /*
+    * Write markup from the router module into the HTTP request
+    */
+   function writeResponse(content, response, head) {
+      if(head === undefined) {
+         head = getDefaultHeader();
       }
+      response.writeHead(httpCode.OK, head);
+      response.write(content);
+      response.end();
    }
 
    function serveFile(file, response) {
@@ -96,11 +78,9 @@ module.exports = (function server() {
 
       function serveHandler(err, contents) {
          if(err) {
-            notFound(response);
+            router.notFound(response, writeResponse);
          } else {
-            response.writeHead(httpCode.OK, head);
-            response.write(contents);
-            response.end();
+            writeResponse(contents, response, head);
          }
       }
 
@@ -108,6 +88,30 @@ module.exports = (function server() {
          config.types[extension].dirs.indexOf(dir) !== -1) {
          fs.readFile(fileName,  "utf8", serveHandler);
          response.servedWith = fileName;
+      } else {
+         throw "Not allowed";
+      }
+   }
+
+   function onListen() {
+      console.log("Server at "          +
+                  config.host           +
+                  " listening on port " +
+                  config.ports.http);
+   }
+
+   /* TODO Revise this validation scheme */
+   function firstValidPathName(parts) {
+      var match = new RegExp("[a-zA-Z0-9]+");
+      for(var i = 0; i < parts.length; i++) {
+         if(match.test(parts[i]) === true) {
+            return parts[i];
+         }
+      }
+   }
+   function getContentType(extension) {
+      if(config.types.hasOwnProperty(extension)) {
+         return config.types[extension].type;
       } else {
          throw "Not allowed";
       }
@@ -132,6 +136,11 @@ module.exports = (function server() {
       response.write("Not found :-(");
       response.servedWith = "notFound()";
       response.end();
+   }
+
+   // TODO: Content negotiation
+   function getDefaultHeader() {
+      return "text/html";
    }
 
    var returnObject = {
