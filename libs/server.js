@@ -6,6 +6,9 @@ module.exports = (function server() {
    var url    = require("url");
    var fs     = require("fs");
 
+   /* Dependencies */
+   var router;
+
    /* Constants */
    var BACKLOG      = 511;
    var httpCode     = {
@@ -16,7 +19,7 @@ module.exports = (function server() {
 
    var serv = http.createServer(handler);
    var config;
-   var that = this;
+
 
    function handler(request, response) {
       var reqUrl, path;
@@ -38,20 +41,28 @@ module.exports = (function server() {
                   config.ports.http);
    }
 
+   /* TODO Revise this validation scheme */
+   function firstValidPathName(parts) {
+      var match = new RegExp("[a-zA-Z0-9]+");
+      for(var i = 0; i < parts.length; i++) {
+         if(match.test(parts[i]) === true) {
+            return parts[i];
+         }
+      }
+   }
+
    function routePages(path, response) {
       var handler, handlerPath, file;
-
-      var page = path === "/"? "home" : path.split("/")[0];
-
-      handlerPath = "./" + config.handlersDir + "/" + page;
+      var parts = path.split("/");
+      var page = path === "/"? "" : firstValidPathName(parts);
       try {
-         file    = fs.lstatSync(handlerPath + ".js");
-         handler = require(handlerPath);
-         response.servedWith = handlerPath + ".js";
-         response.write(handler.markup());
-         response.end();
+         router.load(page, function(text) {
+            response.write(text);
+            response.end();
+         });
+         response.servedWith = router.last(); // TODO FIX THIS
       } catch(e) {
-         notFound(response);
+         console.log(e.stack);
       }
    }
 
@@ -123,16 +134,19 @@ module.exports = (function server() {
       response.end();
    }
 
-  
    var returnObject = {
-      start: function(serverConfig) {
+      start    : function(serverConfig) {
          config = serverConfig;
          serv.listen(config.ports.http,
                      config.host,
                      BACKLOG,
                      onListen);
+      },
+      setRouter: function(theRouter) {
+         router = theRouter;
       }
    }
 
+   Object.freeze(returnObject);
    return returnObject;
 }());

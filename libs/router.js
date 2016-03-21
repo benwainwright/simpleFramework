@@ -36,6 +36,7 @@ module.exports = (function() {
       loadPage(notFoundPage, loadCallback);
    }
 
+
    function serverError() {
       loadPage(serverErrorPage, loadCallback);
    }
@@ -51,7 +52,6 @@ module.exports = (function() {
             loadCallback(templateText);
          }
       } catch(e) {
-
          serverError();
       }
    }
@@ -62,6 +62,7 @@ module.exports = (function() {
       var template = template === ""? "index" : template;
       try {
          handler = require(handlerPath(template));
+         lastHandler = template;
          if(handler.markup !== undefined) {
             callback(handler.markup());
          } else {
@@ -93,9 +94,14 @@ module.exports = (function() {
    };
 
    var returnObject = {
-      exists: templateExists,
-      load  : loadPage,
-      init  : function(settings) {
+      last        : function() {
+         return lastHandler;
+      },
+      exists      : templateExists,
+      load        : loadPage,
+      notFound    : notFound,
+      serverError : serverError,
+      init        : function(settings) {
          if(settings !== undefined) {
             handlers  = settings.handlers ? settings.handlers  : handlers; 
             templates = settings.templates? settings.templates : templates;

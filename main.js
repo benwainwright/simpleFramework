@@ -3,7 +3,7 @@ module.export = (function Main() {
 
    var load    = require("./load");
    var noCache = false;
-   var config, server;
+   var config, server, router;
 
    process.argv.forEach(parseCommandLine);
 
@@ -14,6 +14,15 @@ module.export = (function Main() {
    function loadLibs() {
       config = load.lib("config", noCache);
       server = load.lib("server", noCache);
+      router = load.lib("router", noCache);
+   }
+
+   function initLibs() {
+      router.init({
+         handlers : "pages/handlers",
+         templates: "pages/templates"
+      });
+      server.setRouter(router);
    }
 
    function parseCommandLine(val, index, array) {
@@ -23,6 +32,7 @@ module.export = (function Main() {
 
       if(index === array.length - 1) {
          loadLibs();
+         initLibs();
          config.onLoad(startServer);
       }
    }
