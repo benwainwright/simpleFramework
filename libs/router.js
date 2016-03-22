@@ -37,7 +37,6 @@ module.exports = (function() {
             } else {
                data = handler.data;
             }
-
             fs.readFile(templPath(templateName), serve.bind(null, data));
          }
       } catch(e) {

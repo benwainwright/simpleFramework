@@ -21,8 +21,6 @@ module.exports = (function server() {
 
    function requestHandler(request, response) {
       var reqUrl, path;
-      console.log("New request\n\n\n");
-      console.log(request.url);
       reqUrl = url.parse(request.url, true);
       path   = reqUrl.pathname;
       if(path.split(".").length > 1) {
@@ -68,6 +66,7 @@ module.exports = (function server() {
          head = { "Content-Type": getContentType(extension) };
          serveContents(file, extension, response, head);
       } catch(e) {
+         console.log(e.stack);
          notFound(response);
       }
    }
@@ -79,9 +78,11 @@ module.exports = (function server() {
       var fileName = RESOURCESDIR + "/" +
                      dir          + "/" +
                      name;
+
+      
       if(config.types.hasOwnProperty(extension) &&
          config.types[extension].dirs.indexOf(dir) !== -1) {
-         fs.readile(fileName, writeResponse.bind(null, response, head));
+         fs.readFile(fileName, writeResponse.bind(null, response, head));
          response.servedWith = fileName;
       } else {
          throw "Not allowed";
