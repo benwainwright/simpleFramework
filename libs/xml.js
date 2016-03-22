@@ -102,13 +102,12 @@ var gen = (function() {
    };
 
    var markup = function markup() {
-      var markup = "";
+      var i, markup = "";
       markup += this.startMarkup();
-      for(var i = 0; i < this.children.length; i++) {
+      for(i = 0; i < this.children.length; i++) {
          if(typeof this.children[i] !== "string") {
             markup += this.children[i].markup();
-         }
-         else {
+         } else {
             markup += this.children[i];
          }
       }
@@ -185,4 +184,5 @@ var gen = (function() {
       xml: Xml
    };
 }());
+
 module.exports.create = gen.xml;

@@ -7,8 +7,7 @@ module.exports = (function server() {
    var fs      = require("fs");
    var devMode = false;
 
-   /* Dependencies */
-   var router, config;
+   var router, config, returnObject;
 
    /* Constants */
    var BACKLOG      = 511;
@@ -33,12 +32,12 @@ module.exports = (function server() {
    }
 
    function routePages(path, response) {
-      var handler, handlerPath, file;
       var parts = path.split("/");
       var page  = path === "/"? "" : firstValidPathName(parts);
       var head = getDefaultHeader();
+      var reply = writeResponse.bind(null, response, head);
       try {
-         router.load(page, writeResponse.bind(null, response, head));
+         router.load(page, reply);
          response.servedWith = router.last();
       } catch(e) {
          console.log(e.stack);
@@ -60,7 +59,6 @@ module.exports = (function server() {
    }
 
    function makeHeader(filename) {
-
       var parts     = filename.split(".");
       var extension = parts[parts.length - 1];
       var head = {
@@ -77,7 +75,6 @@ module.exports = (function server() {
    function serveFile(file, response) {
       var parts     = file.split(".");
       var extension = parts[parts.length - 1];
-      var filename  = parts[parts.length - 2];
       var head;
       try {
          servecontents(file, extension, response, head);
@@ -94,11 +91,11 @@ module.exports = (function server() {
       var filename = RESOURCESDIR + "/" +
                      dir          + "/" +
                      name;
-      
+      var reply    = writeResponse.bind(null, response, head);
       if(config.types.hasOwnProperty(extension) &&
          config.types[extension].dirs.indexOf(dir) !== -1) {
          head = makeHeader(name);
-         fs.readFile(filename, writeResponse.bind(null, response, head));
+         fs.readFile(filename, reply);
          response.servedWith = filename;
       } else {
          throw "not allowed";
@@ -157,7 +154,7 @@ module.exports = (function server() {
       return "text/html";
    }
 
-   var returnObject = {
+   returnObject = {
       start    : function(serverConfig, dev) {
          if(dev) {
             console.log("Development mode on...");
@@ -173,7 +170,7 @@ module.exports = (function server() {
       setRouter: function(theRouter) {
          router = theRouter;
       }
-   }
+   };
 
    Object.freeze(returnObject);
    return returnObject;

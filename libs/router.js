@@ -10,7 +10,7 @@ module.exports = (function() {
    var serverErrorPage  = "error";
 
    var loadCallback, response,
-       lastHandler;
+       lastHandler, returnObject;
 
    var handlerPath = function handlerPath(name) {
       return  process.cwd()  +
@@ -19,7 +19,7 @@ module.exports = (function() {
    };
 
    var loadPage = function loadPage(template, callback) {
-      var data, handler;
+      var data, handler, reply;
       var templateName = template === ""? "index" : template;
 
       loadCallback = callback;
@@ -37,7 +37,8 @@ module.exports = (function() {
             } else {
                data = handler.data;
             }
-            fs.readFile(templPath(templateName), serve.bind(null, data));
+            reply = serve.bind(null, data);
+            fs.readFile(templPath(templateName), reply);
          }
       } catch(e) {
          handleLoadError(template);
@@ -61,20 +62,20 @@ module.exports = (function() {
    function handleLoadError(template) {
       switch(template) {
          case notFoundPage:
-         throw new Error("Missing 404 page");
+            throw new Error("Missing 404 page");
 
          case indexPage:
-         throw new Error("Missing index page");
+            throw new Error("Missing index page");
 
          case serverError:
-         throw new Error("Missing error page");
+            throw new Error("Missing error page");
 
          default:
-         notFound();
+            notFound();
       }
    }
 
-   var returnObject = {
+   returnObject = {
       last       : function() {
          return lastHandler;
       },
@@ -83,8 +84,12 @@ module.exports = (function() {
       serverError: serverError,
       init       : function(settings) {
          if(settings !== undefined) {
-            handlers  = settings.handlers? settings.handlers  : handlers;
-            templates = settings.templates? settings.templates : templates;
+            if(settings.handlers) {
+               handlers = settings.handlers;
+            }
+            if(settings.templates) {
+               templates = settings.templates;
+            }
          }
       }
    };

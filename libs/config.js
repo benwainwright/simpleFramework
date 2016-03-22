@@ -7,14 +7,6 @@ module.exports = (function() {
    /* Node modules */
    var fs         = require("fs");
 
-   /* Local libraries */
-   /* TODO implement
-   var schema     = require("./configSchema");
-
-   var typesObject = { dirs: [ ], cType: "" };
-   */
-
-
    function loadFileIfExists(error) {
       if(error === null) {
          fs.readFile(CONFIGFILE, "utf8", loadFile);
@@ -26,19 +18,6 @@ module.exports = (function() {
                          "opening config file");
       }
    }
-
-   /*
-   TODO implement
-   function makeConfigFile() {
-      var fileType, http, https;
-      console.log("Configuration file not found, " +
-                  "creating one...");
-      var input = require("./input");
-      return {
-         response: rVal
-      };
-   }
-    */
 
    function loadFile(err, contents) {
       var config;
@@ -62,16 +41,7 @@ module.exports = (function() {
    }
 
    function validateConfigFile() {
-      /*
-      TODO
-      for(var i = 0; i < REQUIREDROOTKEYS.length; i++) {
-         if(configObject[REQUIREDROOTKEYS[i]] === undefined) {
-            throw "Configuration file must contain root key '" +
-               REQUIREDROOTKEYS[i]                             +
-               "'";
-
-         }
-       */
+      return true;
    }
 
    return {
@@ -79,5 +49,5 @@ module.exports = (function() {
          loadFunc = func;
          fs.stat(CONFIGFILE, loadFileIfExists);
       }
-   }
+   };
 }());

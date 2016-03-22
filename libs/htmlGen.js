@@ -1,43 +1,38 @@
 var gen = (function() {
+   "use strict";
 
-   "use strict"
    var xmlGen = require("./xml");
 
    function Html() {
-      var titleText;
+      var titleText, titleNode, styleSheetNodes,
+          properties, language;
+
       var page = xmlGen.create("html");
-      var titleNode;
-      var styleSheetNodes;
-      var language;
-      var styleSheets
-      var head = this.head = page.child("head");
-      this.body = page.child("body");
       var that = this;
       var doctype = "html";
       var external = {};
+      var addStyleSheet = function(fileName, media) {
+         var newSheet;
 
-      var properties = {
-         title: {
-            configurable: false,
-            set: setTitle,
-            get: getTitle
-         },
-         lang: {
-            configurable: false,
-            set: setLang,
-            get: getLang
-         },
-         stylesheet: {
-            configurable: false,
-            value: addStyleSheet,
-            writable: false
-         },
-         markup: {
-            value: htmlMarkup,
-            configurable: false,
-            writable: false
+         if(styleSheetNodes === undefined) {
+            styleSheetNodes = [];
          }
+
+         newSheet = that.head.child("link").
+                                  setVoid().
+             attribute("rel", "stylesheet").
+              attribute("type", "text/css").
+                attribute("href", fileName);
+
+         if(media !== undefined) {
+            newSheet.attribute("media", media);
+         }
+
+         styleSheetNodes.push(newSheet);
+         return this;
       };
+
+      this.body = page.child("body");
 
       Object.defineProperties(external, properties);
 
@@ -47,26 +42,6 @@ var gen = (function() {
          markup += proto.markup.call(page);
          return markup;
       }
-
-      function addStyleSheet(fileName, media) {
-         if(styleSheetNodes === undefined) {
-            styleSheetNodes = [];
-         }
-
-         var newSheet = that.head.child("link").
-                                      setVoid().
-                 attribute("rel", "stylesheet").
-                  attribute("type", "text/css").
-                    attribute("href", fileName);
-
-         if(media !== undefined) {
-            newSheet.attribute("media", media);
-         }
-
-         styleSheetNodes.push(newSheet);
-         return this;
-      }
-
 
       function setTitle(value) {
          titleText = value;
@@ -79,7 +54,7 @@ var gen = (function() {
       }
 
       function getTitle() {
-         return text;
+         return titleText;
       }
 
       function setLang(value) {
@@ -93,16 +68,35 @@ var gen = (function() {
          return language;
       }
 
+      properties = {
+         title     : {
+            configurable: false,
+            set         : setTitle,
+            get         : getTitle
+         },
+         lang      : {
+            configurable: false,
+            set         : setLang,
+            get         : getLang
+         },
+         stylesheet: {
+            configurable: false,
+            value       : addStyleSheet,
+            writable    : false
+         },
+         markup    : {
+            value       : htmlMarkup,
+            configurable: false,
+            writable    : false
+         }
+      };
+
       return external;
    }
 
- 
    return {
       html: Html
-   }
+   };
 }());
+
 module.exports.newPage = gen.html;
-
-
-
-

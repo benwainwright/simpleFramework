@@ -1,7 +1,11 @@
 module.exports = (function() {
+   "use strict";
+
    return {
       data: function() {
-         return { };
+         return {
+            data: "hello"
+         };
       }
    };
 }());
