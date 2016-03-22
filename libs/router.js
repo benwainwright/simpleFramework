@@ -21,9 +21,7 @@ module.exports = (function() {
    var loadPage = function loadPage(template, callback) {
       var data, handler, reply;
       var templateName = template === ""? "index" : template;
-
       loadCallback = callback;
-
       try {
          handler     = require(handlerPath(templateName));
          lastHandler = templateName;
@@ -48,6 +46,7 @@ module.exports = (function() {
       } else {
          data = handler.data;
       }
+      return data;
    }
 
    function serve(data, err, raw) {
@@ -61,6 +60,7 @@ module.exports = (function() {
             loadCallback(false, raw.toString());
          }
       } catch(e) {
+         throw e;
       }
    }
 
