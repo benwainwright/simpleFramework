@@ -33,7 +33,7 @@ gulp.task("sass", function() {
 
 gulp.task("watch", function() {
    gulp.watch(paths.scripts, ["scripts"]);
-   gulp.watch(paths.sass, ["sass"]);
+   gulp.watch("resources/sass/**/*.scss", ["sass"]);
 });
 
 gulp.task("default", function() {
