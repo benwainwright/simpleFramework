@@ -9,7 +9,7 @@
          "type": "text/css"
       },
       "js": {
-         "dirs": ["scripts"],
+         "dirs": ["scripts-dist"],
          "type": "application/javascript"
       },
       "ico": {
