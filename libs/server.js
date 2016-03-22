@@ -5,6 +5,7 @@ module.exports = (function server() {
    var http    = require("http");
    var url     = require("url");
    var fs      = require("fs");
+   var md5     = require("md5");
    var devMode = false;
 
    var router, config, returnObject;
@@ -21,23 +22,22 @@ module.exports = (function server() {
 
    function requestHandler(request, response) {
       var reqUrl, path;
+      var resource = parseResourceUrl(request);
       reqUrl = url.parse(request.url, true);
       path   = reqUrl.pathname;
-      if(path.split(".").length > 1) {
-         serveFile(path, response);
+      if(resource.static === true) {
+         serveFile(resource, response);
       } else {
-         routePages(path, response);
+         routePages(resource, response);
       }
       logRequest(request, response);
    }
 
-   function routePages(path, response) {
-      var parts = path.split("/");
-      var page  = path === "/"? "" : firstValidPathName(parts);
-      var head = getDefaultHeader();
+   function routePages(resource, response) {
+      var head  = makeHeader(resource);
       var reply = writeResponse.bind(null, response, head);
       try {
-         router.load(page, reply);
+         router.load(resource.page, reply);
          response.servedWith = router.last();
       } catch(e) {
          console.log(e.stack);
@@ -57,48 +57,79 @@ module.exports = (function server() {
          response.end();
       }
    }
+   function getEtag(filename) {
+      var modTime = fs.statSync(filename).mtime;
+      return md5(modTime + filename);
+   }
 
-   function makeHeader(filename) {
-      var parts     = filename.split(".");
-      var extension = parts[parts.length - 1];
-      var head = {
-         "Content-Type": getContentType(extension)
-      };
+   function makeHeader(resource) {
+      var ext   = resource.ext;
+      var aPath = resource.fileNameAbs;
+      var name  = resource.fileName;
+      var head  = { };
+      var map   = "/scripts-maps/" + name + ".map";
 
-      if(extension === "js" && devMode) {
-         head["x-sourcemap"] = "/scripts-maps/" +
-                               filename + ".map";
+      if(resource.static === true) {
+         head["Content-Type"] = getContentType(ext);
+         head["Etag"]         = getEtag(aPath);
+      } else {
+         head["Content-Type"] = "text/html";
+      }
+
+      if(ext === "js" && devMode) {
+         head["x-sourcemap"] = map;
       }
       return head;
    }
 
-   function serveFile(file, response) {
-      var parts     = file.split(".");
-      var extension = parts[parts.length - 1];
-      var head;
-      try {
-         servecontents(file, extension, response, head);
-      } catch(e) {
-         console.log(e.stack);
-         notFound(response);
+   function parseResourceUrl(request) {
+      var filepath, parts, resource  = { };
+      resource.url = url.parse(request.url, true);
+      parts = resource.url.path.split(".");
+      if(parts.length > 1) {
+         parseStaticUrl(resource, parts);
+      } else {
+         parsePageUrl(resource);
+      }
+      return resource;
+   }
+
+   function parsePageUrl(resource) {
+      var url         = resource.url.pathname;
+      var parts       = url.split("/");
+      resource.static = false;
+      if(url === "/") {
+         resource.page = "";
+      } else {
+         resource.page = firstValidPathName(parts);
       }
    }
 
-   function servecontents(file, extension, response, head) {
-      var parts    = file.split("/");
-      var name     = parts[parts.length - 1];
-      var dir      = parts[parts.length - 2];
-      var filename = RESOURCESDIR + "/" +
-                     dir          + "/" +
-                     name;
-      var reply    = writeResponse.bind(null, response, head);
-      if(config.types.hasOwnProperty(extension) &&
-         config.types[extension].dirs.indexOf(dir) !== -1) {
-         head = makeHeader(name);
-         fs.readFile(filename, reply);
-         response.servedWith = filename;
+   function parseStaticUrl(resource, parts) {
+      var url               = resource.url.pathname;
+      resource.static       = true;
+      resource.ext          = parts[parts.length - 1];
+      parts                 = url.split("/");
+      resource.fileName     = parts[parts.length - 1];
+      resource.bareName     = resource.fileName.split(".")[0];
+      resource.dir          = parts[parts.length - 2];
+      resource.fileNameAbs  = RESOURCESDIR  + "/" +
+                              resource.dir  + "/" +
+                              resource.fileName;
+   }
+
+   function serveFile(resource, response) {
+      var dir   = resource.dir;
+      var ext   = resource.ext;
+      var head  = makeHeader(resource);
+      var reply = writeResponse.bind(null, response, head);
+
+      if(config.types.hasOwnProperty(ext) &&
+         config.types[ext].dirs.indexOf(dir) !== -1) {
+         fs.readFile(resource.fileNameAbs, reply);
+         response.servedWith = resource.fileNameAbs;
       } else {
-         throw "not allowed";
+         notFound(response);
       }
    }
 
