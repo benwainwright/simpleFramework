@@ -3,3 +3,4 @@
 node_modules
 \#*\#
 coverage
+resources/styles/large.css resources/styles/large.css.map resources/styles/style.css resources/styles/style.css.map
