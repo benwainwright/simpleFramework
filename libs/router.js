@@ -30,13 +30,7 @@ module.exports = (function() {
          if(handler.markup !== undefined) {
             callback(handler.markup(), response);
          } else {
-            if(typeof handler.data === "function") {
-               data = handler.data();
-            } else if(handler.data === undefined) {
-               data = { };
-            } else {
-               data = handler.data;
-            }
+            data = initData(handler);
             reply = serve.bind(null, data);
             fs.readFile(templPath(templateName), reply);
          }
@@ -44,6 +38,17 @@ module.exports = (function() {
          handleLoadError(template);
       }
    };
+
+   function initData(handler) {
+      var data;
+      if(typeof handler.data === "function") {
+         data = handler.data();
+      } else if(handler.data === undefined) {
+         data = { };
+      } else {
+         data = handler.data;
+      }
+   }
 
    function serve(data, err, raw) {
       var template;

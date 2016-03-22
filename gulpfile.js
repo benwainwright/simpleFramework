@@ -17,6 +17,12 @@ var paths = {
    handlers  : "pages/handlers/"
 };
 
+var src = [
+   "*.js",
+   paths.libs     + "*.js",
+   paths.handlers + "**/*.js"
+];
+
 gulp.task("clean", function() {
    return del([
       "*.*~",
@@ -25,12 +31,6 @@ gulp.task("clean", function() {
 });
 
 gulp.task("lint", function() {
-   var src = [
-      "*.js",
-      paths.libs     + "*.js",
-      paths.handlers + "**/*.js"
-   ];
-
    return gulp.src(src)
       .pipe(jshint(".jshintrc"))
       .pipe(jshint.reporter("jshint-stylish"))
@@ -61,6 +61,7 @@ gulp.task("sass", function() {
 gulp.task("watch", function() {
    gulp.watch(paths.scripts + "*", ["scripts"]);
    gulp.watch(paths.sass + "**/*.scss", ["sass"]);
+   gulp.watch(src, ["lint"]);
 });
 
 gulp.task("default", function() {
