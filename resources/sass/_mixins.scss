@@ -1,0 +1,27 @@
+@mixin box-shadow ($hor, $ver, $blur, $spread, $color) {
+   -webkit-box-shadow: $hor $ver $blur $spread $color;
+   -moz-box-shadow: $hor $ver $blur $spread $color;
+   box-shadow: $hor $ver $blur $spread $color;
+}
+
+// Bulletproof font-face syntax, borrowed from
+// http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/
+
+@mixin font($name, $filename) {
+
+   @font-face {
+      font-family: $name;
+      src: url("#{$filename}.eot?") format("eot"), 
+           url("#{$filename}.woff") format("woff"), 
+           url("#{$filename}.ttf")  format("truetype");
+   }
+ }
+
+// http://zerosixthree.se/8-sass-mixins-you-must-have-in-your-toolbox/
+@mixin transition($args...) {
+  -webkit-transition: $args;
+  -moz-transition: $args;
+  -ms-transition: $args;
+  -o-transition: $args;
+  transition: $args;
+}

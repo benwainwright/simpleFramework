@@ -1,0 +1,346 @@
+body {
+   line-height:1.5em;
+   font-family:"Source Sans Pro";
+   padding:1em;
+   line-height:1.6em;
+   color:$main-color;
+}
+
+header {
+     box-sizing:border-box;
+     position: fixed;
+     top:0em;
+     left:0em;
+     right:0em;
+     display: inline-block;
+     text-align:right;
+     height:$logoheight;
+     @include box-shadow(0, 1px, 3px, 2px, rgba(201, 201, 201, 0.5));
+     background-color:white;
+     padding:0.5em 1em 0 1em;
+}
+
+header h1 {
+   font-size:2.3em;
+   font-weight:bold;
+   background: white url($sitelogo) no-repeat left top;
+   width:100%;
+   margin:0;
+   padding:0.5em 0;
+}
+
+header form {
+     margin:0 auto;
+     height:60%;
+}
+
+header input {
+     width:100%;
+     padding: .5em .5em;
+     font-size: .8em;
+     border: 1px solid $main-color;
+     border-top-left-radius: .5em .5em;
+     border-bottom-left-radius: .5em .5em;
+     border-top-right-radius: .5em .5em;
+     border-bottom-right-radius: .5em .5em;
+     background-color:$highlight;
+     color:$highlightinverse;
+     box-sizing:border-box;
+     margin-top:0.5em;
+}
+
+main {
+   margin:$logoheight auto 0 auto;
+   text-align:center;
+}
+
+main, header form {
+   max-width:60em;
+}
+
+header form {
+   margin: 0 auto;
+}
+
+section header {
+   position:inherit;
+   background:none;
+   border:none;
+   height:auto;
+}
+
+h2, h3, h4, h5 {
+   width:100%;
+}
+
+section > h2:hover {
+   background-color:green;
+   cursor:pointer;
+}
+
+section {
+   overflow:hidden;
+   max-height:100em;
+   margin:0 0 0.5em 0;
+   @include transition(all 0.3s ease);
+}
+
+section li {
+   margin-top:1em;
+}
+
+nav ul li {
+   display:list-item;
+   margin:0.5em 0;
+}
+
+figure {
+   margin:1em 0;
+}
+
+figure img {
+   width:100%;
+   display:block;
+}
+
+figure figcaption {
+   font-size:1.2em;
+}
+
+h1, h2, h3 {
+   color:$main-color;
+}
+
+h1 {
+  font-size: 100%;
+}
+
+h2 {
+   font-size: 2em;
+}
+
+h3 {
+   font-size: 1.5em;
+}
+
+h4 {
+   font-size: 1.3em;
+   width: 100%;
+}
+
+h5 {
+  font-size: 1.1em;
+}
+
+h2,  h3{
+   font-weight:lighter;
+   background-color:$highlight;
+   color:$highlightinverse;
+   padding:0.3em 0;
+   clear:left;
+}
+
+th {
+   font-weight:lighter;
+   color:$main-color;
+   font-size:2em;
+   line-height:1.3em;
+}
+
+td {
+   vertical-align:middle;
+}
+
+p {
+   text-align:justify;
+   margin:0.5em 0;
+}
+
+strong {
+   font-weight:bold;
+}
+
+em {
+   font-style:italic;
+}
+
+a {
+   color:$highlight;
+}
+
+a:visited {
+   color:$contrast;
+}
+
+pre {
+   line-height:1.3em;
+}
+
+code {
+   color:$highlight;
+}
+
+legend {
+  font-size: 120%;
+  padding-top: .5em;
+  margin-bottom:.5em;
+  font-weight: bold;
+}
+
+form ul {
+  text-align: center;
+}
+
+form li {
+  display: inline-block;
+  font-size: 200%;
+  padding:.3em .3em .3em .3em;
+  margin-bottom: .3em;
+  color: $highlight;
+  background:$highlightbackground;
+}
+
+form li:hover {
+  color: $highlightbackground;
+  background:$highlight;
+}
+
+fieldset {
+   text-align:left;
+}
+
+fieldset input, fieldset select  {
+  padding: .5em .5em;
+  margin-right: .5em;
+  font-size: .8em;
+  border: 1px solid $main-color;
+  width: 95%;
+  background-color:$highlight;
+  color:$highlightinverse;
+}
+
+.smallbox {
+  width: 40%;
+}
+
+fieldset select  {
+  width: 6.5em;
+}
+
+.reallysmallbox {
+  width: 5.5em;
+}
+
+input[type="checkbox"] {
+  width: 15%;
+  margin: .5em 0em 0em 0em;
+}
+
+h2 button {
+   vertical-align:bottom;
+   color:white;
+   border:1px solid white;
+   margin-left:1em;
+   font-size:0.5em;
+}
+
+main form input[type="submit"], button {
+  background-color: $highlight;
+  color:$highlightbackground;
+  border: 1px solid $main-color;
+  cursor: pointer;
+}
+
+main form input[type="submit"] {
+  margin-top: .5em;
+  margin-bottom: .5em;
+  float: left;
+  padding: .5em;
+  width: 7em;
+}
+
+section header input[type="submit"], caption {
+  display: none;
+}
+
+table {
+   width:100%;
+   margin-top: .5em;
+   margin-bottom: .5em;
+   text-align:center;
+}
+
+tbody tr {
+  border-top: .1em solid $highlightbackground;
+  border-bottom: .1em solid $highlightbackground;
+}
+
+tbody th, thead th {
+  font-size: 1em;
+}
+
+iframe {
+  margin-top: 1em;
+  height: 10em;
+  width: 100%;
+}
+
+button.material-icons::selection {
+  background-color: $highlightinverse;
+
+}
+
+button.material-icons {
+  border: none;
+  background-color: $highlightinverse;
+  color: $highlight;
+  font-size: 1em;
+  text-decoration: none;
+  width: 0;
+  height: 0;
+}
+
+main section {
+  margin: 0;
+}
+
+main section header {
+  margin: 0;
+  padding: 0 1em 0 0;
+  border: none;
+  width: 100%;
+  text-align: left;
+  display: inline-flex;
+}
+
+main section header button {
+  float: right;
+  cursor: pointer;
+  padding-top: .2em;
+  padding-right:3.5em;
+}
+
+main section header form {
+  display: list-item;
+  background-color: none;
+  width: 10%;
+  text-align: right;
+ list-style-type: none;
+}
+
+main section header form input[type="checkbox"]{
+  width: 1em;
+  cursor: pointer;
+  padding-right:3.5em;
+}
+
+section span {
+  display: inline-block;
+  margin-right: -1em;
+  float: right;
+}
+
+section > header:hover{
+   background-color:$highlightbackground;
+   cursor:pointer;
+}

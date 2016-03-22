@@ -13,7 +13,20 @@
          "type": "application/javascript"
       },
       "ico": {
-         "dirs": ["icons"]
+         "dirs": ["icons"],
+         "type": "image/x-icon"
+      },
+      "jpg": {
+         "dirs": ["images"],
+         "type": "image/jpeg"
+      },
+      "png": {
+         "dirs": ["images", "icons"],
+         "type": "image/png"
+      },
+      "svg": {
+         "dirs": ["images", "icons"],
+         "type": "image/svg+xml"
       }
    },
    "host" : "localhost" 

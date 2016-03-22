@@ -18,16 +18,15 @@ module.exports = (function() {
               "/" + name + ".js";
    };
 
-   var loadPage = function loadPage(template, resp, callback) {
+   var loadPage = function loadPage(template, callback) {
       var data, handler;
-      var template = template === ""? "index" : template;
+      var templateName = template === ""? "index" : template;
 
       loadCallback = callback;
-      response     = resp;
 
       try {
-         handler     = require(handlerPath(template));
-         lastHandler = template;
+         handler     = require(handlerPath(templateName));
+         lastHandler = templateName;
          if(handler.markup !== undefined) {
             callback(handler.markup(), response);
          } else {
@@ -38,25 +37,43 @@ module.exports = (function() {
             } else {
                data = handler.data;
             }
-            fs.readFile(templPath(template), loader);
+            fs.readFile(templPath(templateName), serve.bind(null, data));
          }
       } catch(e) {
-         switch(template) {
-            case notFoundPage: throw new Error("Missing 404 page");
-            case indexPage   : throw new Error("Missing index page");
-            case serverError : throw new Error("Missing error page");
-            default          : notFound();
-         }
-      }
-
-      function loader(error, contents) {
-         if(!error) {
-            serveTemplate(contents.toString(), data);
-         } else {
-            notFound();
-         }
+         handleLoadError(template);
       }
    };
+
+   function serve(data, err, raw) {
+      var template;
+      var options = { strict: true };
+      try {
+         template = handlebars.compile(raw.toString(), options);
+         if(data !== undefined) {
+            loadCallback(false, template(data));
+         } else {
+            loadCallback(false, raw.toString());
+         }
+      } catch(e) {
+         console.log(e.stack);
+      }
+   }
+
+   function handleLoadError(template) {
+      switch(template) {
+         case notFoundPage:
+         throw new Error("Missing 404 page");
+
+         case indexPage:
+         throw new Error("Missing index page");
+
+         case serverError:
+         throw new Error("Missing error page");
+
+         default:
+         notFound();
+      }
+   }
 
    var returnObject = {
       last       : function() {
@@ -92,21 +109,6 @@ module.exports = (function() {
          callback = loadCallback;
       }
       loadPage(serverErrorPage, resp, callback);
-   }
-
-   function serveTemplate(templateText, data) {
-      var template;
-      var options = { strict: true };
-      try {
-         template = handlebars.compile(templateText, options);
-         if(data !== undefined) {
-            loadCallback(template(data), response);
-         } else {
-            loadCallback(templateText, response);
-         }
-      } catch(e) {
-         serverError();
-      }
    }
    Object.freeze(returnObject);
    return returnObject;

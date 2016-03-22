@@ -36,21 +36,27 @@ module.exports = (function server() {
       var handler, handlerPath, file;
       var parts = path.split("/");
       var page  = path === "/"? "" : firstValidPathName(parts);
+      var head = getDefaultHeader();
       try {
-         router.load(page, response, writeResponse);
+         router.load(page, writeResponse.bind(null, response, head));
          response.servedWith = router.last(); // TODO FIX THIS
       } catch(e) {
          console.log(e.stack);
       }
    }
 
-   function writeResponse(content, response, head) {
-      if(head === undefined) {
-         head = getDefaultHeader();
+   function writeResponse(response, head, err, raw) {
+      if(!err) {
+         if(head === undefined) {
+            head = getDefaultHeader();
+         }
+         response.writeHead(httpCode.OK, head);
+         response.write(raw);
+         response.end();
+      } else {
+         response.writeHead(httpCode.NOT_FOUND, head);
+         response.end();
       }
-      response.writeHead(httpCode.OK, head);
-      response.write(content);
-      response.end();
    }
 
    function serveFile(file, response) {
@@ -58,7 +64,7 @@ module.exports = (function server() {
       var extension = parts[parts.length - 1];
       var head;
       try {
-         head = { "Content-type": getContentType(extension) };
+         head = { "Content-Type": getContentType(extension) };
          serveContents(file, extension, response, head);
       } catch(e) {
          notFound(response);
@@ -73,17 +79,9 @@ module.exports = (function server() {
                      dir          + "/" +
                      name;
 
-      function serveHandler(err, contents) {
-         if(err) {
-            router.notFound(response, writeResponse);
-         } else {
-            writeResponse(contents, response, head);
-         }
-      }
-
       if(config.types.hasOwnProperty(extension) &&
          config.types[extension].dirs.indexOf(dir) !== -1) {
-         fs.readFile(fileName,  "utf8", serveHandler);
+         fs.readFile(fileName, writeResponse.bind(null, response, head));
          response.servedWith = fileName;
       } else {
          throw "Not allowed";
