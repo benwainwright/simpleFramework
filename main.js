@@ -8,6 +8,7 @@ module.export = (function Main() {
 
    var load    = require("./load");
    var noCache = false;
+   var devMode = false;
    var config, server, router;
 
    process.argv.forEach(parseCommandLine);
@@ -15,6 +16,7 @@ module.export = (function Main() {
    function parseCommandLine(val, index, array) {
       switch(val) {
          case "--NOREQCACHE" : noCache = true; break;
+         case "--DEV"        : devMode = true; break;
       }
 
       if(index === array.length - 1) {
@@ -39,6 +41,6 @@ module.export = (function Main() {
    }
 
    function startServer(config) {
-      server = server.start(config);
+      server = server.start(config, devMode);
    }
 }());

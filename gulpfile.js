@@ -4,6 +4,7 @@ var uglify = require("gulp-uglify");
 var concat = require("gulp-concat");
 var del    = require("del");
 var sass   = require("gulp-sass");
+var sm     = require("gulp-sourcemaps");
 
 var paths = {
    scripts: "resources/scripts/*.js",
@@ -19,8 +20,10 @@ gulp.task("clean", function() {
 
 gulp.task("scripts", function() {
    return gulp.src(paths.scripts)
+      .pipe(sm.init())
       .pipe(concat("scripts.min.js"))
       .pipe(uglify())
+      .pipe(sm.write("../scripts-maps"))
       .pipe(gulp.dest("resources/scripts-dist"));
 });
 

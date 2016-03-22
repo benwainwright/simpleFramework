@@ -2,9 +2,10 @@ module.exports = (function server() {
    "use strict";
 
    /* Built in modules */
-   var http   = require("http");
-   var url    = require("url");
-   var fs     = require("fs");
+   var http    = require("http");
+   var url     = require("url");
+   var fs      = require("fs");
+   var devMode = false;
 
    /* Dependencies */
    var router, config;
@@ -58,34 +59,49 @@ module.exports = (function server() {
       }
    }
 
+   function makeHeader(filename) {
+
+      var parts     = filename.split(".");
+      var extension = parts[parts.length - 1];
+      var head = {
+         "Content-Type": getContentType(extension)
+      };
+
+      if(extension === "js" && devMode) {
+         head["x-sourcemap"] = "/scripts-maps/" +
+                               filename + ".map";
+      }
+      return head;
+   }
+
    function serveFile(file, response) {
       var parts     = file.split(".");
       var extension = parts[parts.length - 1];
+      var filename  = parts[parts.length - 2];
       var head;
       try {
-         head = { "Content-Type": getContentType(extension) };
-         serveContents(file, extension, response, head);
+         servecontents(file, extension, response, head);
       } catch(e) {
          console.log(e.stack);
          notFound(response);
       }
    }
 
-   function serveContents(file, extension, response, head) {
+   function servecontents(file, extension, response, head) {
       var parts    = file.split("/");
       var name     = parts[parts.length - 1];
       var dir      = parts[parts.length - 2];
-      var fileName = RESOURCESDIR + "/" +
+      var filename = RESOURCESDIR + "/" +
                      dir          + "/" +
                      name;
-
       
       if(config.types.hasOwnProperty(extension) &&
          config.types[extension].dirs.indexOf(dir) !== -1) {
-         fs.readFile(fileName, writeResponse.bind(null, response, head));
-         response.servedWith = fileName;
+         head = makeHeader(name);
+         fs.readFile(filename, writeResponse.bind(null, response, head));
+         response.servedWith = filename;
       } else {
-         throw "Not allowed";
+         throw "not allowed";
       }
    }
 
@@ -142,7 +158,11 @@ module.exports = (function server() {
    }
 
    var returnObject = {
-      start    : function(serverConfig) {
+      start    : function(serverConfig, dev) {
+         if(dev) {
+            console.log("Development mode on...");
+            devMode = dev;
+         }
          config = serverConfig;
          serv.listen(config.ports.http,
                      config.host,

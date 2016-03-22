@@ -27,6 +27,11 @@
       "svg": {
          "dirs": ["images", "icons"],
          "type": "image/svg+xml"
+      },
+      "map": {
+         "dirs": ["scripts-maps"],
+         "type": "application/json",
+         "mode": "dev"
       }
    },
    "host" : "localhost" 
