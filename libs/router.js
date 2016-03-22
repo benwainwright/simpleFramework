@@ -37,6 +37,7 @@ module.exports = (function() {
             } else {
                data = handler.data;
             }
+
             fs.readFile(templPath(templateName), serve.bind(null, data));
          }
       } catch(e) {
@@ -49,13 +50,12 @@ module.exports = (function() {
       var options = { strict: true };
       try {
          template = handlebars.compile(raw.toString(), options);
-         if(data !== undefined) {
+         if(data !== undefined && template !== undefined) {
             loadCallback(false, template(data));
          } else {
             loadCallback(false, raw.toString());
          }
       } catch(e) {
-         console.log(e.stack);
       }
    }
 

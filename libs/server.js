@@ -21,9 +21,10 @@ module.exports = (function server() {
 
    function requestHandler(request, response) {
       var reqUrl, path;
+      console.log("New request\n\n\n");
+      console.log(request.url);
       reqUrl = url.parse(request.url, true);
       path   = reqUrl.pathname;
-
       if(path.split(".").length > 1) {
          serveFile(path, response);
       } else {
@@ -39,7 +40,7 @@ module.exports = (function server() {
       var head = getDefaultHeader();
       try {
          router.load(page, writeResponse.bind(null, response, head));
-         response.servedWith = router.last(); // TODO FIX THIS
+         response.servedWith = router.last();
       } catch(e) {
          console.log(e.stack);
       }
@@ -78,10 +79,9 @@ module.exports = (function server() {
       var fileName = RESOURCESDIR + "/" +
                      dir          + "/" +
                      name;
-
       if(config.types.hasOwnProperty(extension) &&
          config.types[extension].dirs.indexOf(dir) !== -1) {
-         fs.readFile(fileName, writeResponse.bind(null, response, head));
+         fs.readile(fileName, writeResponse.bind(null, response, head));
          response.servedWith = fileName;
       } else {
          throw "Not allowed";
@@ -148,6 +148,7 @@ module.exports = (function server() {
                      BACKLOG,
                      onListen);
       },
+
       setRouter: function(theRouter) {
          router = theRouter;
       }
