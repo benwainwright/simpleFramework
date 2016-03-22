@@ -5,7 +5,8 @@
 
 (function() {
    "use strict";
-   window.addEventListener('load', replaceQsa);
+
+   window.addEventListener("load", replaceQsa);
 
    function replaceQsa() {
       document.querySelectorAll = (function() {
