@@ -7,7 +7,6 @@ module.exports = (function server() {
    var fs      = require("fs");
    var md5     = require("md5");
    var devMode = false;
-   var gZip    = true;
 
    var router, config, returnObject;
 
@@ -81,7 +80,7 @@ module.exports = (function server() {
    function lastModified(resource) {
       var filename = resource.fileNameAbs;
       return fs.statSync(filename).mtime;
-}
+   }
 
    function getEtag(resource) {
       var modTime = lastModified(resource);
@@ -158,7 +157,6 @@ module.exports = (function server() {
    }
 
    function parsePageUrl(resource, request) {
-      var accept;
       var url     = resource.url.pathname;
       var parts   = url.split("/");
       resource.type   = getHtmlTypeFromAccept(request);
@@ -199,7 +197,7 @@ module.exports = (function server() {
          fs.readFile(resource.fileNameAbs, reply);
          response.servedWith = resource.fileNameAbs;
       } else {
-         // Fix this
+         // TODO Decide what to do when extension isn't found
       }
    }
 
