@@ -23,6 +23,7 @@ module.exports = (function server() {
 
    function requestHandler(request, response) {
       var reqUrl, path, resource, reply;
+      // TODO handl 'not found exception' here
       resource = parseRequest(request);
       if(etagUnchanged(request, resource) === true) {
          writeResponse(response, null, null, null,
@@ -87,14 +88,13 @@ module.exports = (function server() {
 
    function makeHeader(resource) {
       var ext   = resource.ext;
-      var aPath = resource.fileNameAbs;
       var name  = resource.fileName;
       var head  = { };
       var map   = "/scripts-maps/" + name + ".map";
 
       head["Content-Type"] = resource.type;
       if(resource.static === true) {
-         head["Etag"] = getEtag(resource);
+         head.Etag = getEtag(resource);
       }
 
       if(ext === "js" && devMode) {
@@ -104,9 +104,9 @@ module.exports = (function server() {
    }
 
    function parseRequest(request) {
-      var filepath, parts, resource  = { };
+      var parts, resource  = { };
       resource.url = url.parse(request.url, true);
-      parts = resource.url.path.split(".");
+      parts        = resource.url.path.split(".");
       if(parts.length > 1) {
          parseStaticUrl(resource, parts);
       } else {
@@ -118,7 +118,7 @@ module.exports = (function server() {
    function parsePageUrl(resource, request) {
       var url     = resource.url.pathname;
       var parts   = url.split("/");
-      var accept  = request.headers["accept"].split(",");
+      var accept  = request.headers.accept.split(",");
       var xhtml   = "application/xhtml+xml";
       var html    = "text/html";
       var i, type = null;
@@ -185,14 +185,6 @@ module.exports = (function server() {
          }
       }
       return "";
-   }
-
-   function getContentType(extension) {
-      if(config.types.hasOwnProperty(extension)) {
-         return config.types[extension].type;
-      } else {
-         throw "Not allowed";
-      }
    }
 
    function logRequest(request, response, resource) {
