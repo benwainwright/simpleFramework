@@ -7,6 +7,7 @@ module.exports = (function server() {
    var fs      = require("fs");
    var md5     = require("md5");
    var devMode = false;
+   var gZip    = true;
 
    var router, config, returnObject;
 
@@ -26,16 +27,13 @@ module.exports = (function server() {
       // TODO handl 'not found exception' here
       resource = parseRequest(request);
       if(etagUnchanged(request, resource) === true) {
-         writeResponse(response, null, null, null,
+         writeResponse(response, resource, null, null,
                        httpCode.NOT_MODIFIED);
       } else {
          try {
             reqUrl = url.parse(request.url, true);
             path   = reqUrl.pathname;
-            if(etagUnchanged(request, resource) === true) {
-               writeResponse(response, null, null,
-                             httpCode.NOT_MODIFIED);
-            } else if(resource.static === true) {
+            if(resource.static === true) {
                serveFile(resource, response);
             } else {
                routePages(resource, response);
@@ -57,8 +55,7 @@ module.exports = (function server() {
    }
 
    function routePages(resource, response) {
-      var head  = makeHeader(resource);
-      var reply = writeResponse.bind(null, response, head);
+      var reply = writeResponse.bind(null, response, resource);
       try {
          router.load(resource.page, reply);
          response.servedWith = router.last();
@@ -67,7 +64,8 @@ module.exports = (function server() {
       }
    }
 
-   function writeResponse(response, head, err, raw, code) {
+   function writeResponse(response, resource, err, raw, code) {
+      var head  = makeHeader(resource);
       if(!err && code === undefined) {
          code = httpCode.OK;
       } else if(code === undefined) {
@@ -80,10 +78,33 @@ module.exports = (function server() {
       response.end();
    }
 
-   function getEtag(resource) {
+   function lastModified(resource) {
       var filename = resource.fileNameAbs;
-      var modTime  = fs.statSync(filename).mtime;
-      return md5(modTime + filename);
+      return fs.statSync(filename).mtime;
+}
+
+   function getEtag(resource) {
+      var modTime = lastModified(resource);
+      return md5(modTime + resource.filename);
+   }
+
+   function makeLastModHead(resource) {
+      var modTime = lastModified(resource);
+      return modTime.toUTCString();
+   }
+
+   function makeCacheControl(resource) {
+      var cacheControl = "",
+          expires      = resource.expires;
+      if(resource.static === true) {
+         cacheControl += "public";
+      } else {
+         cacheControl += "private";
+      }
+      if(expires !== undefined) {
+         cacheControl += ", max-age=" + expires;
+      }
+      return cacheControl;
    }
 
    function makeHeader(resource) {
@@ -92,9 +113,13 @@ module.exports = (function server() {
       var head  = { };
       var map   = "/scripts-maps/" + name + ".map";
 
-      head["Content-Type"] = resource.type;
+      head["Content-Type"]  = resource.type;
+      head["Cache-Control"] = makeCacheControl(resource);
       if(resource.static === true) {
+         head["Last-Modified"] = makeLastModHead(resource);
          head.Etag = getEtag(resource);
+      } else {
+         head["Content-Type"] += "; charset=utf-8";
       }
 
       if(ext === "js" && devMode) {
@@ -148,7 +173,8 @@ module.exports = (function server() {
                               resource.dir  + "/" +
                               resource.fileName;
       if(config.types.hasOwnProperty(resource.ext)) {
-         resource.type = config.types[resource.ext].type;
+         resource.type    = config.types[resource.ext].type;
+         resource.expires = config.types[resource.ext].expires;
       } else {
          throw "Not allowed";
       }
@@ -157,8 +183,7 @@ module.exports = (function server() {
    function serveFile(resource, response) {
       var dir   = resource.dir;
       var ext   = resource.ext;
-      var head  = makeHeader(resource);
-      var reply = writeResponse.bind(null, response, head);
+      var reply = writeResponse.bind(null, response, resource);
 
       if(config.types.hasOwnProperty(ext) &&
          config.types[ext].dirs.indexOf(dir) !== -1) {
@@ -195,14 +220,14 @@ module.exports = (function server() {
       var code     = response.statusCode;
       var type     = resource? resource.type : "text/html";
 
-      var log = "[" + timeDate + "] " +
-                "[" + address  + "] " +
-                "[" + reqText  + "] " +
-                "[" + type     + "] " +
-                "[" + code     + "] ";
+      var log = "[when=> " + timeDate + "] " +
+                "[host=> " + address  + "] " +
+                "[request=> " + reqText  + "] " +
+                "[type=> " + type     + "] " +
+                "[status=> " + code     + "] ";
 
       if(response.servedWith !== undefined) {
-         log += " [" + response.servedWith + "]";
+         log += " [with=> " + response.servedWith + "]";
       }
       console.log(log);
    }
