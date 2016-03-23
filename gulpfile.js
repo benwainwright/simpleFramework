@@ -15,6 +15,8 @@ var merge      = require("event-stream").merge;
 var order      = require("gulp-order");
 var nodemon    = require("gulp-nodemon");
 var mocha      = require("gulp-mocha");
+var complexity = require("gulp-complexity");
+var todo       = require("gulp-todo");
 
 var paths = {
    scripts   : "resources/scripts/",
@@ -64,6 +66,17 @@ gulp.task("clean", function() {
       "*.*~",
       "libs/*.*~"
    ]);
+});
+
+gulp.task("complexity", function() {
+   return gulp.src(src)
+      .pipe(complexity());
+});
+
+gulp.task("todo", function() {
+   return gulp.src(src)
+      .pipe(todo())
+      .pipe(gulp.dest("./"));
 });
 
 gulp.task("dev", function() {
