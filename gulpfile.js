@@ -133,6 +133,7 @@ gulp.task("watch", function() {
    gulp.watch(paths.scripts + "*.js", ["scripts"]);
    gulp.watch(paths.sass + "**/*.scss", ["sass"]);
    gulp.watch(src, ["lint"]);
+   gulp.watch(src, ["todo"]);
    testWatch = src;
    testWatch.push(paths.tests);
    gulp.watch(testWatch, ["test"]);
