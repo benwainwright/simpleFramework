@@ -13,7 +13,6 @@ var autopre    = require("gulp-autoprefixer");
 var autopoly   = require("gulp-autopolyfiller");
 var merge      = require("event-stream").merge;
 var order      = require("gulp-order");
-var uncss      = require("gulp-uncss");
 var nodemon    = require("gulp-nodemon");
 var mocha      = require("gulp-mocha");
 
@@ -112,7 +111,6 @@ gulp.task("sass", function() {
    return gulp.src(paths.sass + "/*.scss")
       .pipe(sass(sassSettings)
       .on("error", sass.logError))
-      .pipe(uncss())
       .pipe(autopre(autoPreSettings))
       .pipe(gulp.dest(paths.styles));
 });
