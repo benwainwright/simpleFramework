@@ -13,8 +13,9 @@ module.exports = (function server() {
    /* Constants */
    var BACKLOG      = 511;
    var httpCode     = {
-      OK       : 200,
-      NOT_FOUND: 404
+      OK          : 200,
+      NOT_FOUND   : 404,
+      NOT_MODIFIED: 304
    };
 
    var RESOURCESDIR = "resources";
@@ -25,12 +26,22 @@ module.exports = (function server() {
       var resource = parseResourceUrl(request);
       reqUrl = url.parse(request.url, true);
       path   = reqUrl.pathname;
-      if(resource.static === true) {
+      if(etagUnchanged(request, resource) === true) {
+         serveUnmodified(response);
+      } else if(resource.static === true) {
          serveFile(resource, response);
       } else {
          routePages(resource, response);
       }
       logRequest(request, response);
+   }
+
+   function etagUnchanged(request, resource) {
+      var reqTag = request.headers["if-none-match"];
+      if(reqTag !== undefined && reqTag === getEtag(resource)) {
+         return true;
+      }
+      return false;
    }
 
    function routePages(resource, response) {
@@ -44,21 +55,28 @@ module.exports = (function server() {
       }
    }
 
+   function serveUnmodified(response) {
+      response.writeHead(httpCode.NOT_MODIFIED);
+      response.statusCode = httpCode.NOT_MODIFIED;
+      response.end();
+   }
+
    function writeResponse(response, head, err, raw) {
+      var code;
       if(!err) {
-         if(head === undefined) {
-            head = getDefaultHeader();
-         }
+         response.statusCode = httpCode.OK;
          response.writeHead(httpCode.OK, head);
          response.write(raw);
          response.end();
       } else {
+         response.statusCode = httpCode.NOT_FOUND;
          response.writeHead(httpCode.NOT_FOUND, head);
          response.end();
       }
    }
-   function getEtag(filename) {
-      var modTime = fs.statSync(filename).mtime;
+   function getEtag(resource) {
+      var filename = resource.fileNameAbs;
+      var modTime  = fs.statSync(filename).mtime;
       return md5(modTime + filename);
    }
 
@@ -71,7 +89,7 @@ module.exports = (function server() {
 
       if(resource.static === true) {
          head["Content-Type"] = getContentType(ext);
-         head["Etag"]         = getEtag(aPath);
+         head["Etag"]         = getEtag(resource);
       } else {
          head["Content-Type"] = "text/html";
       }
@@ -160,14 +178,19 @@ module.exports = (function server() {
    }
 
    function logRequest(request, response) {
-      var d   = new Date();
-      var log = "when [" + d.toTimeString()                  +
-                " " + d.toDateString() + "] - "              +
-                "from [" + request.connection.remoteAddress  +
-                "] - " + "request [" + request.method + " "  +
-                request.url + "]";
+      var d        = new Date();
+      var timeDate = d.toTimeString() + " " + d.toDateString();
+      var address  = request.connection.remoteAddress;
+      var reqText  = request.method + " " + request.url;
+      var code     = response.statusCode;
+
+      var log = "[" + timeDate + "] " +
+                "[" + address  + "] " +
+                "[" + reqText  + "] " +
+                "[" + code     + "]";
+
       if(response.servedWith !== undefined) {
-         log += " - served [" + response.servedWith + "]";
+         log += " [" + response.servedWith + "]";
       }
       console.log(log);
    }
