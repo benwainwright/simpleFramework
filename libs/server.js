@@ -140,19 +140,28 @@ module.exports = (function server() {
       return resource;
    }
 
-   function parsePageUrl(resource, request) {
-      var url     = resource.url.pathname;
-      var parts   = url.split("/");
-      var accept  = request.headers.accept.split(",");
+   function getHtmlTypeFromAccept(request) {
       var xhtml   = "application/xhtml+xml";
       var html    = "text/html";
-      var i, type = null;
-      for(i = 0; i < accept.length && type === null; i++) {
-         if(accept[i].indexOf(xhtml) >= 0) {
-            type = xhtml;
+      var parts, type, i, len;
+      if(request.headers.accept !== undefined) {
+         parts = request.headers.accept.split(",");
+         len   = parts.length;
+         for(i = 0; i < len && type === undefined; i++) {
+            if(parts[i].indexOf(xhtml) >= 0) {
+               type = xhtml;
+            }
          }
+         return type === undefined? html : type;
       }
-      resource.type = type? type : html;
+      return html;
+   }
+
+   function parsePageUrl(resource, request) {
+      var accept;
+      var url     = resource.url.pathname;
+      var parts   = url.split("/");
+      resource.type   = getHtmlTypeFromAccept(request);
       resource.static = false;
       if(url === "/") {
          resource.page = "";
@@ -220,11 +229,11 @@ module.exports = (function server() {
       var code     = response.statusCode;
       var type     = resource? resource.type : "text/html";
 
-      var log = "[when=> " + timeDate + "] " +
-                "[host=> " + address  + "] " +
+      var log = "[when=> "    + timeDate + "] " +
+                "[host=> "    + address  + "] " +
                 "[request=> " + reqText  + "] " +
-                "[type=> " + type     + "] " +
-                "[status=> " + code     + "] ";
+                "[type=> "    + type     + "] " +
+                "[status=> "  + code     + "] ";
 
       if(response.servedWith !== undefined) {
          log += " [with=> " + response.servedWith + "]";
@@ -244,7 +253,9 @@ module.exports = (function server() {
                      BACKLOG,
                      onListen);
       },
-
+      stop     : function(callback) {
+         serv.close(callback);
+      },
       setRouter: function(theRouter) {
          router = theRouter;
       }
