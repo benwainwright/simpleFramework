@@ -60,7 +60,7 @@ module.exports = (function() {
             loadCallback(false, raw.toString());
          }
       } catch(e) {
-         throw e;
+         console.log(e.stack);
       }
    }
 
@@ -103,7 +103,7 @@ module.exports = (function() {
       if(callback === undefined) {
          callback = loadCallback;
       }
-      loadPage(notFoundPage, resp, callback);
+      loadPage(notFoundPage, callback);
    }
 
    function templPath(name) {
@@ -117,7 +117,7 @@ module.exports = (function() {
       if(callback === undefined) {
          callback = loadCallback;
       }
-      loadPage(serverErrorPage, resp, callback);
+      loadPage(serverErrorPage, callback);
    }
    Object.freeze(returnObject);
    return returnObject;

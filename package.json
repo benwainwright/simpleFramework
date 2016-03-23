@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "clear-require": "^1.0.1",
+    "columnify": "^1.5.4",
     "handlebars": "^4.0.5",
     "md5": "^2.1.0"
   },

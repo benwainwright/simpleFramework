@@ -22,18 +22,29 @@ module.exports = (function server() {
    var serv         = http.createServer(requestHandler);
 
    function requestHandler(request, response) {
-      var reqUrl, path;
-      var resource = parseResourceUrl(request);
-      reqUrl = url.parse(request.url, true);
-      path   = reqUrl.pathname;
+      var reqUrl, path, resource, reply;
+      resource = parseRequest(request);
       if(etagUnchanged(request, resource) === true) {
-         serveUnmodified(response);
-      } else if(resource.static === true) {
-         serveFile(resource, response);
+         writeResponse(response, null, null, null,
+                       httpCode.NOT_MODIFIED);
       } else {
-         routePages(resource, response);
+         try {
+            reqUrl = url.parse(request.url, true);
+            path   = reqUrl.pathname;
+            if(etagUnchanged(request, resource) === true) {
+               writeResponse(response, null, null,
+                             httpCode.NOT_MODIFIED);
+            } else if(resource.static === true) {
+               serveFile(resource, response);
+            } else {
+               routePages(resource, response);
+            }
+         } catch(e) {
+            reply = writeResponse.bind(null, response, null);
+            router.notFound(response, reply);
+         }
       }
-      logRequest(request, response);
+      logRequest(request, response, resource);
    }
 
    function etagUnchanged(request, resource) {
@@ -55,25 +66,19 @@ module.exports = (function server() {
       }
    }
 
-   function serveUnmodified(response) {
-      response.writeHead(httpCode.NOT_MODIFIED);
-      response.statusCode = httpCode.NOT_MODIFIED;
+   function writeResponse(response, head, err, raw, code) {
+      if(!err && code === undefined) {
+         code = httpCode.OK;
+      } else if(code === undefined) {
+         code = httpCode.NOT_FOUND;
+      }
+      response.writeHead(code, head);
+      if(raw) {
+         response.write(raw);
+      }
       response.end();
    }
 
-   function writeResponse(response, head, err, raw) {
-      var code;
-      if(!err) {
-         response.statusCode = httpCode.OK;
-         response.writeHead(httpCode.OK, head);
-         response.write(raw);
-         response.end();
-      } else {
-         response.statusCode = httpCode.NOT_FOUND;
-         response.writeHead(httpCode.NOT_FOUND, head);
-         response.end();
-      }
-   }
    function getEtag(resource) {
       var filename = resource.fileNameAbs;
       var modTime  = fs.statSync(filename).mtime;
@@ -87,11 +92,9 @@ module.exports = (function server() {
       var head  = { };
       var map   = "/scripts-maps/" + name + ".map";
 
+      head["Content-Type"] = resource.type;
       if(resource.static === true) {
-         head["Content-Type"] = getContentType(ext);
-         head["Etag"]         = getEtag(resource);
-      } else {
-         head["Content-Type"] = "text/html";
+         head["Etag"] = getEtag(resource);
       }
 
       if(ext === "js" && devMode) {
@@ -100,21 +103,31 @@ module.exports = (function server() {
       return head;
    }
 
-   function parseResourceUrl(request) {
+   function parseRequest(request) {
       var filepath, parts, resource  = { };
       resource.url = url.parse(request.url, true);
       parts = resource.url.path.split(".");
       if(parts.length > 1) {
          parseStaticUrl(resource, parts);
       } else {
-         parsePageUrl(resource);
+         parsePageUrl(resource, request);
       }
       return resource;
    }
 
-   function parsePageUrl(resource) {
-      var url         = resource.url.pathname;
-      var parts       = url.split("/");
+   function parsePageUrl(resource, request) {
+      var url     = resource.url.pathname;
+      var parts   = url.split("/");
+      var accept  = request.headers["accept"].split(",");
+      var xhtml   = "application/xhtml+xml";
+      var html    = "text/html";
+      var i, type = null;
+      for(i = 0; i < accept.length && type === null; i++) {
+         if(accept[i].indexOf(xhtml) >= 0) {
+            type = xhtml;
+         }
+      }
+      resource.type = type? type : html;
       resource.static = false;
       if(url === "/") {
          resource.page = "";
@@ -134,6 +147,11 @@ module.exports = (function server() {
       resource.fileNameAbs  = RESOURCESDIR  + "/" +
                               resource.dir  + "/" +
                               resource.fileName;
+      if(config.types.hasOwnProperty(resource.ext)) {
+         resource.type = config.types[resource.ext].type;
+      } else {
+         throw "Not allowed";
+      }
    }
 
    function serveFile(resource, response) {
@@ -147,7 +165,7 @@ module.exports = (function server() {
          fs.readFile(resource.fileNameAbs, reply);
          response.servedWith = resource.fileNameAbs;
       } else {
-         notFound(response);
+         // Fix this
       }
    }
 
@@ -177,35 +195,24 @@ module.exports = (function server() {
       }
    }
 
-   function logRequest(request, response) {
+   function logRequest(request, response, resource) {
       var d        = new Date();
       var timeDate = d.toTimeString() + " " + d.toDateString();
       var address  = request.connection.remoteAddress;
       var reqText  = request.method + " " + request.url;
       var code     = response.statusCode;
+      var type     = resource? resource.type : "text/html";
 
       var log = "[" + timeDate + "] " +
                 "[" + address  + "] " +
                 "[" + reqText  + "] " +
-                "[" + code     + "]";
+                "[" + type     + "] " +
+                "[" + code     + "] ";
 
       if(response.servedWith !== undefined) {
          log += " [" + response.servedWith + "]";
       }
       console.log(log);
-   }
-
-   function notFound(response) {
-      var cType = { "Content-type": "text/plain" };
-      response.writeHead(httpCode.NOT_FOUND, cType);
-      response.write("Not found :-(");
-      response.servedWith = "notFound()";
-      response.end();
-   }
-
-   // TODO: Content negotiation
-   function getDefaultHeader() {
-      return "text/html";
    }
 
    returnObject = {
