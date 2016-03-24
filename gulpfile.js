@@ -64,11 +64,11 @@ var noDemonSettings = {
 
 gulp.task("clean", function() {
    return del([
-      paths.scripts + "*.js~",
-      paths.sass    + "**/*.js~",
-      paths.libs    + "*.js~",
-      paths.handlers+ "**/*.js~",
-      paths.tests   + "*.js~"
+      paths.scripts  + "*.js~",
+      paths.sass     + "**/*.js~",
+      paths.libs     + "*.js~",
+      paths.handlers + "**/*.js~",
+      paths.tests    + "*.js~"
    ]);
 });
 
@@ -91,7 +91,6 @@ gulp.task("lint", function() {
    var tests = paths.tests + "*.js";
    var srcWithoutTests = src.slice(0);
    srcWithoutTests.push("!" + tests);
-   console.log(srcWithoutTests);
    gulp.src(srcWithoutTests)
       .pipe(jshint(".jshintrc"))
       .pipe(jshint.reporter())
@@ -142,7 +141,6 @@ gulp.task("sass", function() {
 });
 
 gulp.task("watch", function() {
-   var testWatch;
    gulp.watch(paths.scripts + "*.js", ["scripts"]);
    gulp.watch(paths.sass + "**/*.scss", ["sass"]);
    gulp.watch(src, ["lint", "test"]);

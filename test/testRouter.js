@@ -1,25 +1,25 @@
+"use strict";
+
 var assert = require("assert");
-var should = require("should");
 var router = require("../libs/router");
 
 var options = {
-   dirs: {
+   dirs : {
       templates: "test/fixtures/templates",
       handlers : "test/fixtures/handlers",
       partials : "test/fixtures/partials"
    },
-   types    : {
-      "js" : {
+   types: {
+      js : {
          type: "text/javascript",
          dirs: ["js"]
       },
-      "css": {
+      css: {
          dirs: ["css"],
          type: "text/css"
       }
    }
 };
-
 
 router.init(options);
 
@@ -46,10 +46,8 @@ describe("router", function() {
          router.load(simple, function(err, raw) {
             assert.equal(raw, expected);
             done();
-            assert.equal(1,3);
          });
       });
-
 
       it("should return the 404 page if the handler doesn't exist", function(done) {
          var expected = "this is the 404 template\n";
@@ -127,7 +125,6 @@ describe("router", function() {
          });
       });
 
-
       it("Should return the not found page if the static file doesn't exist", function(done) {
          var expected = "this is the 404 template\n";
          var resource = {
@@ -143,6 +140,7 @@ describe("router", function() {
          };
 
          router.load(resource, function(err, raw) {
+            assert.equal(raw, expected);
             done();
          });
       });
@@ -164,6 +162,6 @@ describe("router", function() {
             assert.equal(raw, expected);
             done();
          });
-     });
+      });
    });
 });

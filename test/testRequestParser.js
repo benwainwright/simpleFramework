@@ -1,11 +1,13 @@
+"use strict";
+
 var assert = require("assert");
-var parser = require("../libs/requestParser.js"); 
+var parser = require("../libs/requestParser.js");
 
 var config = {
-   dirs     : {
+   dirs : {
       resources: "test/fixtures/resources"
    },
-   types    : {
+   types: {
       js : {
          type: "text/javascript",
          dirs: ["js"]
@@ -19,11 +21,10 @@ var config = {
 
 parser.init(config);
 
-
 describe("requestParser.js", function() {
    describe("parse()", function() {
       it("should correctly parse the extension from the request", function() {
-         var request, expected;
+         var request;
          request = {url: "/several/levels/deep/file.css"};
          assert.equal(parser.parse(request).ext, "css");
          request = {url: "file.js"};
@@ -35,7 +36,7 @@ describe("requestParser.js", function() {
       });
 
       it("should correctly parse the directory from the request", function() {
-         var request, expected;
+         var request;
          request = {url: "/several/levels/deep/file.css"};
          assert.equal(parser.parse(request).dir, "deep");
          request = {url: "file.js"};
