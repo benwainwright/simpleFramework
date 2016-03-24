@@ -34,6 +34,6 @@ module.export = (function Main() {
    function configLoaded(config) {
       router.init(config);
       server.setRouter(router);
-      server = server.start(config, devMode);
+      server.start(config, devMode);
    }
 }());
