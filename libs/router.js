@@ -3,12 +3,9 @@ module.exports = (function() {
 
    var fs               = require("fs");
    var handlebars       = require("handlebars");
-   var handlers         = "handlers";
-   var templates        = "templates";
    var notFoundPage     = "notfound";
    var indexPage        = "index";
    var serverErrorPage  = "error";
-   var partials         = [ ];
 
    var loadCallback, response,
        lastHandler, returnObject,
@@ -59,9 +56,9 @@ module.exports = (function() {
       } else {
          loadPage(resource.page, callback);
       }
-   }
+   };
 
-   var loadPage = function loadPage(template, callback) {
+   function loadPage(template, callback) {
       var data, handler, reply;
       var templateName = template === ""? "index" : template;
       try {
@@ -77,7 +74,7 @@ module.exports = (function() {
       } catch(e) {
          handleLoadError(template, callback);
       }
-   };
+   }
 
    function initData(handler) {
       var data;
@@ -89,7 +86,7 @@ module.exports = (function() {
       return data;
    }
 
-   var loadStatic = function(resource, callback) {
+   function loadStatic(resource, callback) {
       var dir   = resource.dir;
       var ext   = resource.ext;
       var reply = serve.bind(null, null, callback);
@@ -103,12 +100,13 @@ module.exports = (function() {
    }
 
    function serve(data, callback, err, raw) {
-      var template;
+      var template, string;
       var options = { strict: true };
       if(!err) {
          try {
+            string = raw.toString();
             if(typeof data === "object") {
-               template = handlebars.compile(raw.toString(), options);
+               template = handlebars.compile(string, options);
                callback(false, template(data));
             } else {
                callback(false, raw.toString());

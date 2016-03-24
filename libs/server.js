@@ -27,7 +27,7 @@ module.exports = (function server() {
       for separation into a new module so that it
       is testable */
    function requestHandler(request, response) {
-      var reqUrl, path, resource, reply, code;
+      var resource, reply, code;
       initLogObject(request, response);
       resource = parseRequest(request);
       if(etagUnchanged(request, resource) === true) {
@@ -201,21 +201,6 @@ module.exports = (function server() {
       }
    }
 
-   function serveFile(resource, response) {
-      var dir   = resource.dir;
-      var ext   = resource.ext;
-      var reply = writeResponse.bind(null, response,
-                                     resource, httpCode.OK);
-
-      if(config.types.hasOwnProperty(ext) &&
-         config.types[ext].dirs.indexOf(dir) !== -1) {
-         fs.readFile(resource.fileNameAbs, reply);
-         response.servedWith = resource.fileNameAbs;
-      } else {
-         // TODO Decide what to do when extension isn't found
-      }
-   }
-
    function onListen() {
       console.log("Server at "          +
                   config.host           +
@@ -245,21 +230,19 @@ module.exports = (function server() {
       };
    }
 
-   var logRequest = function(response, resource) {
+   function logRequest(response, resource) {
       var log      = response.log;
       var reqText  = log.method + " " + log.url;
       var type     = resource? resource.type : "text/html";
-
-      var log = "[when=> "    + log.timeDate   + "] " +
-                "[host=> "    + log.address    + "] " +
-                "[request=> " + reqText        + "] " +
-                "[type=> "    + type           + "] " +
-                "[status=> "  + log.statusCode + "] ";
-
+      var logText = "[when=> "    + log.timeDate   + "] " +
+                    "[host=> "    + log.address    + "] " +
+                    "[request=> " + reqText        + "] " +
+                    "[type=> "    + type           + "] " +
+                    "[status=> "  + log.statusCode + "] ";
       if(response.servedWith !== undefined) {
          log += " [with=> " + response.servedWith + "]";
       }
-      console.log(log);
+      console.log(logText);
    }
 
    returnObject = {
