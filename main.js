@@ -9,7 +9,8 @@ module.export = (function Main() {
    var load    = require("./load");
    var noCache = false;
    var devMode = false;
-   var config, server, router;
+   var config, server,
+       router, parser;
 
    process.argv.forEach(parseCommandLine);
 
@@ -20,20 +21,23 @@ module.export = (function Main() {
       }
 
       if(index === array.length - 1) {
-         loadLibs();
+         loadModules();
          config.onLoad(configLoaded);
       }
    }
 
-   function loadLibs() {
+   function loadModules() {
       config = load.lib("config", noCache);
       server = load.lib("server", noCache);
       router = load.lib("router", noCache);
+      parser = load.lib("requestParser", noCache);
    }
 
    function configLoaded(config) {
       router.init(config);
+      parser.init(config);
       server.setRouter(router);
+      server.setParser(parser);
       server.start(config, devMode);
    }
 }());

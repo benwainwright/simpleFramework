@@ -19,5 +19,6 @@
    "strict"        : true,
    "undef"         : true,
    "unused"        : true,
-   "varstmt"       : false
+   "varstmt"       : false,
+   "mocha"         : true
 }

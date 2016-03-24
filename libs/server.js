@@ -3,12 +3,12 @@ module.exports = (function server() {
 
    /* Built in modules */
    var http    = require("http");
-   var url     = require("url");
    var fs      = require("fs");
    var md5     = require("md5");
    var devMode = false;
 
-   var router, config, returnObject;
+   var router, config,
+       returnObject, parser;
 
    /* Constants */
    var BACKLOG      = 511;
@@ -18,7 +18,6 @@ module.exports = (function server() {
       NOT_MODIFIED: 304
    };
 
-   var RESOURCESDIR = "resources";
    var serv         = http.createServer(requestHandler);
 
    /* TODO there is a bug in the way that file
@@ -29,7 +28,7 @@ module.exports = (function server() {
    function requestHandler(request, response) {
       var resource, reply, code;
       initLogObject(request, response);
-      resource = parseRequest(request);
+      resource = parser.parse(request);
       if(etagUnchanged(request, resource) === true) {
          writeResponse(response, resource,
                        httpCode.NOT_MODIFIED,
@@ -140,83 +139,11 @@ module.exports = (function server() {
       return head;
    }
 
-   function parseRequest(request) {
-      var parts, resource  = { };
-      resource.url = url.parse(request.url, true);
-      parts        = resource.url.path.split(".");
-      if(parts.length > 1) {
-         parseStaticUrl(resource, parts);
-      } else {
-         parsePageUrl(resource, request);
-      }
-      return resource;
-   }
-
-   function getHtmlTypeFromAccept(request) {
-      var xhtml   = "application/xhtml+xml";
-      var html    = "text/html";
-      var parts, type, i, len;
-      if(request.headers.accept !== undefined) {
-         parts = request.headers.accept.split(",");
-         len   = parts.length;
-         for(i = 0; i < len && type === undefined; i++) {
-            if(parts[i].indexOf(xhtml) >= 0) {
-               type = xhtml;
-            }
-         }
-         return type === undefined? html : type;
-      }
-      return html;
-   }
-
-   function parsePageUrl(resource, request) {
-      var url     = resource.url.pathname;
-      var parts   = url.split("/");
-      resource.type   = getHtmlTypeFromAccept(request);
-      resource.static = false;
-      if(url === "/") {
-         resource.page = "";
-      } else {
-         resource.page = firstValidPathName(parts);
-      }
-   }
-
-   function parseStaticUrl(resource, parts) {
-      var url               = resource.url.pathname;
-      resource.ext          = parts[parts.length - 1];
-      if(config.types.hasOwnProperty(resource.ext)) {
-         resource.static      = true;
-         resource.allowed     = true;
-         parts                = url.split("/");
-         resource.fileName    = parts[parts.length - 1];
-         resource.bareName    = resource.fileName.split(".")[0];
-         resource.dir         = parts[parts.length - 2];
-         resource.fileNameAbs = RESOURCESDIR  + "/" +
-            resource.dir  + "/" +
-            resource.fileName;
-         resource.type    = config.types[resource.ext].type;
-         resource.expires = config.types[resource.ext].expires;
-      } else {
-         resource.allowed = false;
-      }
-   }
-
    function onListen() {
       console.log("Server at "          +
                   config.host           +
                   " listening on port " +
                   config.ports.http);
-   }
-
-   /* TODO Revise this validation scheme */
-   function firstValidPathName(parts) {
-      var i, match = new RegExp("[a-zA-Z0-9]+");
-      for(i = 0; i < parts.length; i++) {
-         if(match.test(parts[i]) === true) {
-            return parts[i];
-         }
-      }
-      return "";
    }
 
    function initLogObject(request, response) {
@@ -264,6 +191,9 @@ module.exports = (function server() {
       },
       setRouter: function(theRouter) {
          router = theRouter;
+      },
+      setParser: function(theParser) {
+         parser = theParser;
       }
    };
 

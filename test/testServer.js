@@ -1,11 +1,13 @@
+"use strict";
+
 var server = require("../libs/server");
 var http   = require("http");
 var assert = require("assert");
 var port   = 4352;
 var url    = "http://localhost:" + port;
 var config = {
-   "ports": {
-      "http": port
+   ports: {
+      http: port
    }
 };
 
@@ -19,7 +21,6 @@ var mockRouter = {
 };
 
 server.setRouter(mockRouter);
-
 
 describe("server", function() {
    before(function () {

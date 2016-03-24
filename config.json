@@ -2,7 +2,8 @@
    "dirs": {
       "templates" : "pages/templates",
       "handlers"  : "pages/handlers",
-      "partials"  : "pages/partials"
+      "partials"  : "pages/partials",
+      "resources" : "resources"
    },
    "ports": {
       "http"  : 2343,
