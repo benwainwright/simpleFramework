@@ -114,10 +114,7 @@ module.exports = (function() {
                callback(false, raw.toString());
             }
          } catch(e) {
-            if(e instanceof TypeError) {
-            } else {
-               throw e;
-            }
+            notFound(callback);
          }
       } else {
          notFound(callback);

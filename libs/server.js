@@ -73,17 +73,31 @@ module.exports = (function server() {
 
    function lastModified(resource) {
       var filename = resource.fileNameAbs;
-      return fs.statSync(filename).mtime;
+      try {
+         return fs.statSync(filename).mtime;
+      } catch(e) {
+         throw e;
+      }
    }
 
    function getEtag(resource) {
-      var modTime = lastModified(resource);
-      return md5(modTime + resource.filename);
+      var modTime;
+      try {
+         modTime = lastModified(resource);
+         return md5(modTime + resource.filename);
+      } catch(e) {
+         // TODO handle this exception
+      }
    }
 
    function makeLastModHead(resource) {
-      var modTime = lastModified(resource);
-      return modTime.toUTCString();
+      var modTime;
+      try {
+         modTime = lastModified(resource);
+         return modTime.toUTCString();
+      } catch(e) {
+         // TODO handle this exception
+      }
    }
 
    function makeCacheControl(resource) {
@@ -109,13 +123,8 @@ module.exports = (function server() {
       head["Content-Type"]  = resource.type;
       head["Cache-Control"] = makeCacheControl(resource);
       if(resource.static === true) {
-         try {
-            head["Last-Modified"] = makeLastModHead(resource);
-            head.Etag = getEtag(resource);
-         } catch(e) {
-            // Will throw if file in resource doesn't exist.
-            // Prob do some unobtrusive logging here
-         }
+         head["Last-Modified"] = makeLastModHead(resource);
+         head.Etag = getEtag(resource);
       } else {
          head["Content-Type"] += "; charset=utf-8";
       }
