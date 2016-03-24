@@ -30,6 +30,7 @@ var paths = {
 
 var src = [
    "*.js",
+   paths.tests    + "*.js",
    paths.libs     + "*.js",
    paths.handlers + "**/*.js"
 ];
@@ -63,8 +64,11 @@ var noDemonSettings = {
 
 gulp.task("clean", function() {
    return del([
-      "*.*~",
-      "libs/*.*~"
+      paths.scripts + "*.js~",
+      paths.sass    + "**/*.js~",
+      paths.libs    + "*.js~",
+      paths.handlers+ "**/*.js~",
+      paths.tests   + "*.js~"
    ]);
 });
 
@@ -95,7 +99,6 @@ gulp.task("test", function() {
    return gulp.src(paths.tests + "*.js")
       .pipe(mocha());
 });
-
 gulp.task("scripts", function() {
    var allScripts = gulp.src(paths.scripts + "*.js")
           .pipe(jshint(paths.scripts + ".jshintrc"))
@@ -132,11 +135,8 @@ gulp.task("watch", function() {
    var testWatch;
    gulp.watch(paths.scripts + "*.js", ["scripts"]);
    gulp.watch(paths.sass + "**/*.scss", ["sass"]);
-   gulp.watch(src, ["lint"]);
+   gulp.watch(src, ["lint", "test"]);
    gulp.watch(src, ["todo"]);
-   testWatch = src;
-   testWatch.push(paths.tests);
-   gulp.watch(testWatch, ["test"]);
 });
 
 gulp.task("default", function() {
