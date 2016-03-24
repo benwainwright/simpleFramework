@@ -34,8 +34,9 @@ module.export = (function Main() {
 
    function initLibs() {
       router.init({
-         handlers : "pages/handlers",
-         templates: "pages/templates"
+         handlers   : "pages/handlers",
+         templates  : "pages/templates",
+         partialsDir: "pages/partials"
       });
       server.setRouter(router);
    }

@@ -1,74 +1,50 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-<head>
-<title>homepage</title>
-<link href='https://fonts.googleapis.com/css?family=Montserrat|Source+Sans+Pro:400,300,700' rel='stylesheet' type='text/css' />
-<link href="styles/style.css" rel="stylesheet" type="text/css" media="screen, handheld" />
-<link href="styles/large.css" rel="stylesheet" type="text/css" media="screen and (min-width:40em)" />
-<!--[if (lt IE9) & (!IEMobile)]>
-      <link href="css/large.css" rel="stylesheet" type="text/css" />
-      <![endif]-->
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-
-<body>
-<header>
-   <form action="http://www.google.com" method="get">
-     <h1>Title</h1>
-     <input type="submit"  value="Search"/>
-   </form>
-  </header>
-<main>
-   <nav>
-   <h2>Menu</h2>
-   <ul>
-      <li>Test one</li>
-      <li>Test two</li>
-      <li>Test three</li>
-   </ul>
-   </nav>
-   <section class='expanded'>
-      <h2>Related Shows</h2>
-         <figure>
-            <img src="images/breaking-bad.jpg" data-sizes="SMALL,BIG,MEDIUM" />
-            <figcaption>Breaking Bad</figcaption>
-         </figure>
-         <figure>
-            <img src="images/battlestar.png" data-sizes="SMALL,BIG,MEDIUM" />
-            <figcaption>Battlestar Galactica</figcaption>
-         </figure>
-         <figure>
-           <a href= "thebigbangtheory.html" title="The Big Bang Theory">
-           <img src="images/bigbang.jpg"  alt="poster" data-sizes="SMALL,BIG,MEDIUM" />
-           <figcaption>Big Bang Theory</figcaption>
-           </a>
-         </figure>
-         <figure>
-            <img src="images/greys_anatomy.jpg" data-sizes="SMALL,BIG,MEDIUM" />
-            <figcaption>Grey&apos;s Anatomy</figcaption>
-         </figure>
-     </section>
-   <section>
-      <h2>Top Shows</h2>
-         <figure>
-            <img src="images/breaking-bad.jpg" />
-            <figcaption>Breaking Bad</figcaption>
-         </figure>
-         <figure>
-            <img src="images/battlestar.png" />
-            <figcaption>Battlestar Galactica</figcaption>
-         </figure>
-         <figure>
-            <img src="images/bigbang.jpg" />
-            <figcaption>Big Bang Theory</figcaption>
-         </figure>
-         <figure>
-            <img src="images/greys_anatomy.jpg" />
-            <figcaption>Grey&apos;s Anatomy</figcaption>
-         </figure>
-    </section>
-</main>
-<script src='scripts-dist/scripts.min.js'></script>
-</body>
-</html>
+{{> siteHeader }}
+<nav>
+  <h2>Menu</h2>
+  <ul>
+    <li>Test one</li>
+    <li>Test two</li>
+    <li>Test three</li>
+  </ul>
+</nav>
+<section class='expanded'>
+  <h2>Related Shows</h2>
+  <figure>
+    <img src="images/breaking-bad.jpg" data-sizes="SMALL,BIG,MEDIUM" />
+    <figcaption>Breaking Bad</figcaption>
+  </figure>
+  <figure>
+    <img src="images/battlestar.png" data-sizes="SMALL,BIG,MEDIUM" />
+    <figcaption>Battlestar Galactica</figcaption>
+  </figure>
+  <figure>
+    <a href= "thebigbangtheory.html" title="The Big Bang Theory">
+      <img src="images/bigbang.jpg"  alt="poster" data-sizes="SMALL,BIG,MEDIUM" />
+      <figcaption>Big Bang Theory</figcaption>
+    </a>
+  </figure>
+  <figure>
+    <img src="images/greys_anatomy.jpg" data-sizes="SMALL,BIG,MEDIUM" />
+    <figcaption>Grey&apos;s Anatomy</figcaption>
+  </figure>
+</section>
+<section>
+  <h2>Top Shows</h2>
+  <figure>
+    <img src="images/breaking-bad.jpg" />
+    <figcaption>Breaking Bad</figcaption>
+  </figure>
+  <figure>
+    <img src="images/battlestar.png" />
+    <figcaption>Battlestar Galactica</figcaption>
+  </figure>
+  <figure>
+    <img src="images/bigbang.jpg" />
+    <figcaption>Big Bang Theory</figcaption>
+  </figure>
+  <figure>
+    <img src="images/greys_anatomy.jpg" />
+    <figcaption>Grey&apos;s Anatomy</figcaption>
+  </figure>
+</section>
+{{>siteFooter}}

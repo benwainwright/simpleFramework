@@ -23,26 +23,26 @@ module.exports = (function server() {
 
    function requestHandler(request, response) {
       var reqUrl, path, resource, reply;
-      // TODO handl 'not found exception' here
+      initLogObject(request, response);
       resource = parseRequest(request);
       if(etagUnchanged(request, resource) === true) {
-         writeResponse(response, resource, null, null,
-                       httpCode.NOT_MODIFIED);
+         writeResponse(response, resource,
+                       httpCode.NOT_MODIFIED,
+                       null, null);
       } else {
          try {
-            reqUrl = url.parse(request.url, true);
-            path   = reqUrl.pathname;
-            if(resource.static === true) {
+            if(resource.static  === true &&
+               resource.allowed === true) {
                serveFile(resource, response);
             } else {
                routePages(resource, response);
             }
          } catch(e) {
-            reply = writeResponse.bind(null, response, null);
+            reply = writeResponse.bind(null, response, null,
+                                       httpCode.NOT_FOUND);
             router.notFound(response, reply);
          }
       }
-      logRequest(request, response, resource);
    }
 
    function etagUnchanged(request, resource) {
@@ -54,7 +54,15 @@ module.exports = (function server() {
    }
 
    function routePages(resource, response) {
-      var reply = writeResponse.bind(null, response, resource);
+      var reply, code;
+      if(resource.allowed === false) {
+         code = httpCode.NOT_FOUND;
+      } else {
+         code = httpCode.OK;
+      }
+      console.log(resource);
+      reply = writeResponse.bind(null, response,
+                                 resource, code);
       try {
          router.load(resource.page, reply);
          response.servedWith = router.last();
@@ -63,18 +71,23 @@ module.exports = (function server() {
       }
    }
 
-   function writeResponse(response, resource, err, raw, code) {
+   function writeResponse(response, resource, code, err, raw) {
       var head  = makeHeader(resource);
+
+      console.log(err);
+      console.log(code);
       if(!err && code === undefined) {
          code = httpCode.OK;
       } else if(code === undefined) {
          code = httpCode.NOT_FOUND;
       }
       response.writeHead(code, head);
+      response.log.statusCode = code;
       if(raw) {
          response.write(raw);
       }
       response.end();
+      logRequest(response, resource);
    }
 
    function lastModified(resource) {
@@ -170,27 +183,29 @@ module.exports = (function server() {
 
    function parseStaticUrl(resource, parts) {
       var url               = resource.url.pathname;
-      resource.static       = true;
       resource.ext          = parts[parts.length - 1];
-      parts                 = url.split("/");
-      resource.fileName     = parts[parts.length - 1];
-      resource.bareName     = resource.fileName.split(".")[0];
-      resource.dir          = parts[parts.length - 2];
-      resource.fileNameAbs  = RESOURCESDIR  + "/" +
-                              resource.dir  + "/" +
-                              resource.fileName;
       if(config.types.hasOwnProperty(resource.ext)) {
+         resource.static      = true;
+         resource.allowed     = true;
+         parts                = url.split("/");
+         resource.fileName    = parts[parts.length - 1];
+         resource.bareName    = resource.fileName.split(".")[0];
+         resource.dir         = parts[parts.length - 2];
+         resource.fileNameAbs = RESOURCESDIR  + "/" +
+         resource.dir  + "/" +
+         resource.fileName;
          resource.type    = config.types[resource.ext].type;
          resource.expires = config.types[resource.ext].expires;
       } else {
-         throw "Not allowed";
+         resource.allowed = false;
       }
    }
 
    function serveFile(resource, response) {
       var dir   = resource.dir;
       var ext   = resource.ext;
-      var reply = writeResponse.bind(null, response, resource);
+      var reply = writeResponse.bind(null, response,
+                                     resource, httpCode.OK);
 
       if(config.types.hasOwnProperty(ext) &&
          config.types[ext].dirs.indexOf(dir) !== -1) {
@@ -219,19 +234,27 @@ module.exports = (function server() {
       return "";
    }
 
-   function logRequest(request, response, resource) {
+   function initLogObject(request, response) {
       var d        = new Date();
       var timeDate = d.toTimeString() + " " + d.toDateString();
-      var address  = request.connection.remoteAddress;
-      var reqText  = request.method + " " + request.url;
-      var code     = response.statusCode;
+      response.log = {
+         timeDate: timeDate,
+         method  : request.method,
+         url     : request.url,
+         address : request.connection.remoteAddress
+      };
+   }
+
+   var logRequest = function(response, resource) {
+      var log      = response.log;
+      var reqText  = log.method + " " + log.url;
       var type     = resource? resource.type : "text/html";
 
-      var log = "[when=> "    + timeDate + "] " +
-                "[host=> "    + address  + "] " +
-                "[request=> " + reqText  + "] " +
-                "[type=> "    + type     + "] " +
-                "[status=> "  + code     + "] ";
+      var log = "[when=> "    + log.timeDate   + "] " +
+                "[host=> "    + log.address    + "] " +
+                "[request=> " + reqText        + "] " +
+                "[type=> "    + type           + "] " +
+                "[status=> "  + log.statusCode + "] ";
 
       if(response.servedWith !== undefined) {
          log += " [with=> " + response.servedWith + "]";

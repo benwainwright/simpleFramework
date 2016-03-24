@@ -8,9 +8,43 @@ module.exports = (function() {
    var notFoundPage     = "notfound";
    var indexPage        = "index";
    var serverErrorPage  = "error";
+   var partials         = [ ];
 
    var loadCallback, response,
        lastHandler, returnObject;
+
+   var compilePartials = function(dirName) {
+      fs.readdir(dirName, listPartials);
+
+      function listPartials(err, files) {
+         if(err) {
+            throw "Could not find partials directory";
+         } else {
+            files.forEach(readPartial);
+         }
+      }
+
+      function readPartial(fileName) {
+         var isHtml = new RegExp("^[a-zA-Z0-9]*\.{1}html$");
+         var path   = dirName + "/" + fileName;
+         if(isHtml.test(fileName)) {
+            fs.readFile(path, "utf8", compilePartial);
+         }
+
+         function compilePartial(err, content) {
+            var partial, name, dot;
+            if(err) {
+               throw "Error while loading partial " +
+                     "'" + path + "'";
+            } else {
+               partial = handlebars.compile(content.toString());
+               dot     = fileName.indexOf(".");
+               name    = fileName.substring(0, dot);
+               handlebars.registerPartial(name, partial);
+            }
+         }
+      }
+   };
 
    var handlerPath = function handlerPath(name) {
       return  process.cwd()  +
@@ -94,6 +128,9 @@ module.exports = (function() {
             }
             if(settings.templates) {
                templates = settings.templates;
+            }
+            if(settings.partialsDir) {
+               compilePartials(settings.partialsDir);
             }
          }
       }
