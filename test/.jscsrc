@@ -33,7 +33,7 @@
    "disallowTrailingWhitespace"                : true,
    "disallowUnusedParams"                      : true,
    "disallowYodaConditions"                    : true,
-   "maximumLineLength"                         : 100,
+   "maximumLineLength"                         : 200,
    "requireAlignedObjectValues"                : "all",
    "requireBlocksOnNewline"                    : true,
    "requireCamelCaseOrUpperCaseIdentifiers"    : true,

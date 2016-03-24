@@ -88,10 +88,20 @@ gulp.task("dev", function() {
 });
 
 gulp.task("lint", function() {
-   return gulp.src(src)
+   var tests = paths.tests + "*.js";
+   var srcWithoutTests = src.slice(0);
+   srcWithoutTests.push("!" + tests);
+   console.log(srcWithoutTests);
+   gulp.src(srcWithoutTests)
       .pipe(jshint(".jshintrc"))
       .pipe(jshint.reporter())
       .pipe(jscs())
+      .pipe(jscs.reporter("console"));
+
+   gulp.src(tests)
+      .pipe(jshint("test/.jshintrc"))
+      .pipe(jshint.reporter())
+      .pipe(jscs({configPath: "test/.jscsrc" }))
       .pipe(jscs.reporter("console"));
 });
 
