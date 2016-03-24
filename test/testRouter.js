@@ -142,7 +142,6 @@ describe("router", function() {
             expires    : 604800
          };
 
-         console.log("START");
          router.load(resource, function(err, raw) {
             done();
          });

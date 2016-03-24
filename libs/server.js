@@ -192,8 +192,8 @@ module.exports = (function server() {
          resource.bareName    = resource.fileName.split(".")[0];
          resource.dir         = parts[parts.length - 2];
          resource.fileNameAbs = RESOURCESDIR  + "/" +
-         resource.dir  + "/" +
-         resource.fileName;
+            resource.dir  + "/" +
+            resource.fileName;
          resource.type    = config.types[resource.ext].type;
          resource.expires = config.types[resource.ext].expires;
       } else {
@@ -230,6 +230,8 @@ module.exports = (function server() {
       };
    }
 
+   /* TODO create a LOGGING module and take the actual printing
+    * out of this one */
    function logRequest(response, resource) {
       var log      = response.log;
       var reqText  = log.method + " " + log.url;
