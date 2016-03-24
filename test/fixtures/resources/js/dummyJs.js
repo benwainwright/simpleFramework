@@ -1,1 +1,1 @@
-this is a dummy js file
+// this is a dummy js file

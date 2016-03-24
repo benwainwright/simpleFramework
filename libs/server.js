@@ -1,16 +1,16 @@
 module.exports = (function server() {
    "use strict";
 
+   var router, config,
+       returnObject, parser;
+
    /* Built in modules */
    var http    = require("http");
    var fs      = require("fs");
    var md5     = require("md5");
-   var devMode = false;
-
-   var router, config,
-       returnObject, parser;
 
    /* Constants */
+   var devMode      = false;
    var BACKLOG      = 511;
    var httpCode     = {
       OK          : 200,
@@ -91,6 +91,7 @@ module.exports = (function server() {
          return md5(modTime + resource.filename);
       } catch(e) {
          // TODO handle this exception
+         return null;
       }
    }
 

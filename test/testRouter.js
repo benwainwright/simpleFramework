@@ -86,7 +86,7 @@ describe("router", function() {
       });
 
       it("Should return the contents of a static js file if it exists and directory is whitelisted", function(done) {
-         var expected = "this is a dummy js file\n";
+         var expected = "// this is a dummy js file\n";
          var resource = {
             ext        : "js",
             static     : true,

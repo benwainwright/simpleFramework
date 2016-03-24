@@ -11,8 +11,16 @@ var config = {
    }
 };
 
+var mockParser = {
+   parse: function() {
+      return {
+         allowed: true
+      };
+   }
+};
+
 var mockRouter = {
-   load: function(name, callback) {
+   load: function(resource, callback) {
       callback(false, "dummy response");
    },
    last: function() {
@@ -21,6 +29,7 @@ var mockRouter = {
 };
 
 server.setRouter(mockRouter);
+server.setParser(mockParser);
 
 describe("server", function() {
    before(function () {
