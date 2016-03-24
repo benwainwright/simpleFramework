@@ -21,55 +21,6 @@ module.exports = (function server() {
    var RESOURCESDIR = "resources";
    var serv         = http.createServer(requestHandler);
 
-   function requestHandler(request, response) {
-      var reqUrl, path, resource, reply;
-      initLogObject(request, response);
-      resource = parseRequest(request);
-      if(etagUnchanged(request, resource) === true) {
-         writeResponse(response, resource,
-                       httpCode.NOT_MODIFIED,
-                       null, null);
-      } else {
-         try {
-            if(resource.static  === true &&
-               resource.allowed === true) {
-               serveFile(resource, response);
-            } else {
-               routePages(resource, response);
-            }
-         } catch(e) {
-            reply = writeResponse.bind(null, response, null,
-                                       httpCode.NOT_FOUND);
-            router.notFound(response, reply);
-         }
-      }
-   }
-
-   function etagUnchanged(request, resource) {
-      var reqTag = request.headers["if-none-match"];
-      if(reqTag !== undefined && reqTag === getEtag(resource)) {
-         return true;
-      }
-      return false;
-   }
-
-   function routePages(resource, response) {
-      var reply, code;
-      if(resource.allowed === false) {
-         code = httpCode.NOT_FOUND;
-      } else {
-         code = httpCode.OK;
-      }
-      reply = writeResponse.bind(null, response,
-                                 resource, code);
-      try {
-         router.load(resource.page, reply);
-         response.servedWith = router.last();
-      } catch(e) {
-         console.log(e.stack);
-      }
-   }
-
    function writeResponse(response, resource, code, err, raw) {
       var head  = makeHeader(resource);
 
@@ -85,6 +36,39 @@ module.exports = (function server() {
       }
       response.end();
       logRequest(response, resource);
+   }
+
+   function requestHandler(request, response) {
+      var reqUrl, path, resource, reply, code;
+      initLogObject(request, response);
+      resource = parseRequest(request);
+      if(etagUnchanged(request, resource) === true) {
+         writeResponse(response, resource,
+                       httpCode.NOT_MODIFIED,
+                       null, null);
+      } else {
+         if(resource.allowed === false) {
+            code = httpCode.NOT_FOUND;
+         } else {
+            code = httpCode.OK;
+         }
+         reply = writeResponse.bind(null, response,
+                                    resource, code);
+         try {
+            router.load(resource, reply);
+            response.servedWith = router.last();
+         } catch(e) {
+            console.log(e.stack);
+         }
+      }
+   }
+
+   function etagUnchanged(request, resource) {
+      var reqTag = request.headers["if-none-match"];
+      if(reqTag !== undefined && reqTag === getEtag(resource)) {
+         return true;
+      }
+      return false;
    }
 
    function lastModified(resource) {
@@ -125,8 +109,13 @@ module.exports = (function server() {
       head["Content-Type"]  = resource.type;
       head["Cache-Control"] = makeCacheControl(resource);
       if(resource.static === true) {
-         head["Last-Modified"] = makeLastModHead(resource);
-         head.Etag = getEtag(resource);
+         try {
+            head["Last-Modified"] = makeLastModHead(resource);
+            head.Etag = getEtag(resource);
+         } catch(e) {
+            // Will throw if file in resource doesn't exist.
+            // Prob do some unobtrusive logging here
+         }
       } else {
          head["Content-Type"] += "; charset=utf-8";
       }

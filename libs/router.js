@@ -48,8 +48,8 @@ module.exports = (function() {
    };
 
    var handlerPath = function handlerPath(name) {
-      return  process.cwd()  +
-              "/" + config.handlers +
+      return  process.cwd()              +
+              "/" + config.dirs.handlers +
               "/" + name + ".js";
    };
 
@@ -102,7 +102,6 @@ module.exports = (function() {
       }
    }
 
-
    function serve(data, callback, err, raw) {
       var template;
       var options = { strict: true };
@@ -150,8 +149,8 @@ module.exports = (function() {
       serverError: serverError,
       init       : function(configObj) {
          config = configObj;
-         if(config.partialsDir) {
-            compilePartials(config.partialsDir);
+         if(config.dirs.partials) {
+            compilePartials(config.dirs.partials);
          }
       }
    };
@@ -164,9 +163,9 @@ module.exports = (function() {
    }
 
    function templPath(name) {
-      return process.cwd()          +
-             "/" + config.templates +
-             "/" + name             +
+      return process.cwd()               +
+             "/" + config.dirs.templates +
+             "/" + name                  +
              ".html";
    }
 

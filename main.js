@@ -21,8 +21,7 @@ module.export = (function Main() {
 
       if(index === array.length - 1) {
          loadLibs();
-         initLibs();
-         config.onLoad(startServer);
+         config.onLoad(configLoaded);
       }
    }
 
@@ -32,16 +31,9 @@ module.export = (function Main() {
       router = load.lib("router", noCache);
    }
 
-   function initLibs() {
-      router.init({
-         handlers   : "pages/handlers",
-         templates  : "pages/templates",
-         partialsDir: "pages/partials"
-      });
+   function configLoaded(config) {
+      router.init(config);
       server.setRouter(router);
-   }
-
-   function startServer(config) {
       server = server.start(config, devMode);
    }
 }());

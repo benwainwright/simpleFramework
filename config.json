@@ -1,4 +1,9 @@
 {
+   "dirs": {
+      "templates" : "pages/templates",
+      "handlers"  : "pages/handlers",
+      "partials"  : "pages/partials"
+   },
    "ports": {
       "http"  : 2343,
       "https" : 3456

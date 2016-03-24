@@ -3,8 +3,11 @@ var should = require("should");
 var router = require("../libs/router");
 
 var options = {
-   templates: "test/fixtures/templates",
-   handlers : "test/fixtures/handlers",
+   dirs: {
+      templates: "test/fixtures/templates",
+      handlers : "test/fixtures/handlers",
+      partials : "test/fixtures/partials"
+   },
    types    : {
       "js" : {
          type: "text/javascript",
