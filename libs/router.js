@@ -11,7 +11,8 @@ module.exports = (function() {
    var partials         = [ ];
 
    var loadCallback, response,
-       lastHandler, returnObject;
+       lastHandler, returnObject,
+       config;
 
    var compilePartials = function(dirName) {
       fs.readdir(dirName, listPartials);
@@ -48,14 +49,21 @@ module.exports = (function() {
 
    var handlerPath = function handlerPath(name) {
       return  process.cwd()  +
-              "/" + handlers +
+              "/" + config.handlers +
               "/" + name + ".js";
    };
+
+   var load = function(resource, callback) {
+      if(resource.static === true) {
+         loadStatic(resource, callback);
+      } else {
+         loadPage(resource.page, callback);
+      }
+   }
 
    var loadPage = function loadPage(template, callback) {
       var data, handler, reply;
       var templateName = template === ""? "index" : template;
-      loadCallback = callback;
       try {
          handler     = require(handlerPath(templateName));
          lastHandler = templateName;
@@ -63,11 +71,11 @@ module.exports = (function() {
             callback(handler.markup(), response);
          } else {
             data = initData(handler);
-            reply = serve.bind(null, data);
+            reply = serve.bind(null, data, callback);
             fs.readFile(templPath(templateName), reply);
          }
       } catch(e) {
-         handleLoadError(template);
+         handleLoadError(template, callback);
       }
    };
 
@@ -75,34 +83,49 @@ module.exports = (function() {
       var data;
       if(typeof handler.data === "function") {
          data = handler.data();
-      } else if(handler.data === undefined) {
-         data = { };
       } else {
          data = handler.data;
       }
       return data;
    }
 
-   function serve(data, err, raw) {
-      var template;
-      var options = { strict: true };
-      try {
-         template = handlebars.compile(raw.toString(), options);
-         if(data !== undefined && template !== undefined) {
-            loadCallback(false, template(data));
-         } else {
-            loadCallback(false, raw.toString());
-         }
-      } catch(e) {
-         if(e instanceof TypeError) {
-            notFound();
-         } else {
-            throw e;
-         }
+   var loadStatic = function(resource, callback) {
+      var dir   = resource.dir;
+      var ext   = resource.ext;
+      var reply = serve.bind(null, null, callback);
+
+      if(config.types.hasOwnProperty(ext) &&
+         config.types[ext].dirs.indexOf(dir) !== -1) {
+         fs.readFile(resource.fileNameAbs, reply);
+      } else {
+         notFound(callback);
       }
    }
 
-   function handleLoadError(template) {
+
+   function serve(data, callback, err, raw) {
+      var template;
+      var options = { strict: true };
+      if(!err) {
+         try {
+            if(typeof data === "object") {
+               template = handlebars.compile(raw.toString(), options);
+               callback(false, template(data));
+            } else {
+               callback(false, raw.toString());
+            }
+         } catch(e) {
+            if(e instanceof TypeError) {
+            } else {
+               throw e;
+            }
+         }
+      } else {
+         notFound(callback);
+      }
+   }
+
+   function handleLoadError(template, callback) {
       switch(template) {
          case notFoundPage:
             throw new Error("Missing 404 page");
@@ -114,7 +137,7 @@ module.exports = (function() {
             throw new Error("Missing error page");
 
          default:
-            notFound();
+            notFound(callback);
       }
    }
 
@@ -122,25 +145,18 @@ module.exports = (function() {
       last       : function() {
          return lastHandler;
       },
-      load       : loadPage,
+      load       : load,
       notFound   : notFound,
       serverError: serverError,
-      init       : function(settings) {
-         if(settings !== undefined) {
-            if(settings.handlers) {
-               handlers = settings.handlers;
-            }
-            if(settings.templates) {
-               templates = settings.templates;
-            }
-            if(settings.partialsDir) {
-               compilePartials(settings.partialsDir);
-            }
+      init       : function(configObj) {
+         config = configObj;
+         if(config.partialsDir) {
+            compilePartials(config.partialsDir);
          }
       }
    };
 
-   function notFound(resp, callback) {
+   function notFound(callback) {
       if(callback === undefined) {
          callback = loadCallback;
       }
@@ -148,9 +164,9 @@ module.exports = (function() {
    }
 
    function templPath(name) {
-      return process.cwd()   +
-             "/" + templates +
-             "/" + name      +
+      return process.cwd()          +
+             "/" + config.templates +
+             "/" + name             +
              ".html";
    }
 
