@@ -21,23 +21,11 @@ module.exports = (function server() {
    var RESOURCESDIR = "resources";
    var serv         = http.createServer(requestHandler);
 
-   function writeResponse(response, resource, code, err, raw) {
-      var head  = makeHeader(resource);
-
-      if(!err && code === undefined) {
-         code = httpCode.OK;
-      } else if(code === undefined) {
-         code = httpCode.NOT_FOUND;
-      }
-      response.writeHead(code, head);
-      response.log.statusCode = code;
-      if(raw) {
-         response.write(raw);
-      }
-      response.end();
-      logRequest(response, resource);
-   }
-
+   /* TODO there is a bug in the way that file
+      paths are created in the request parsing
+      functions. This would be a good candidate
+      for separation into a new module so that it
+      is testable */
    function requestHandler(request, response) {
       var reqUrl, path, resource, reply, code;
       initLogObject(request, response);
@@ -61,6 +49,23 @@ module.exports = (function server() {
             console.log(e.stack);
          }
       }
+   }
+
+   function writeResponse(response, resource, code, err, raw) {
+      var head  = makeHeader(resource);
+
+      if(!err && code === undefined) {
+         code = httpCode.OK;
+      } else if(code === undefined) {
+         code = httpCode.NOT_FOUND;
+      }
+      response.writeHead(code, head);
+      response.log.statusCode = code;
+      if(raw) {
+         response.write(raw);
+      }
+      response.end();
+      logRequest(response, resource);
    }
 
    function etagUnchanged(request, resource) {
