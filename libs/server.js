@@ -60,7 +60,6 @@ module.exports = (function server() {
       } else {
          code = httpCode.OK;
       }
-      console.log(resource);
       reply = writeResponse.bind(null, response,
                                  resource, code);
       try {
@@ -74,8 +73,6 @@ module.exports = (function server() {
    function writeResponse(response, resource, code, err, raw) {
       var head  = makeHeader(resource);
 
-      console.log(err);
-      console.log(code);
       if(!err && code === undefined) {
          code = httpCode.OK;
       } else if(code === undefined) {

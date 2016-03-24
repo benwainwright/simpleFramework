@@ -94,7 +94,11 @@ module.exports = (function() {
             loadCallback(false, raw.toString());
          }
       } catch(e) {
-         console.log(e.stack);
+         if(e instanceof TypeError) {
+            notFound();
+         } else {
+            throw e;
+         }
       }
    }
 

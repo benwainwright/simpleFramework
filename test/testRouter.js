@@ -1,4 +1,5 @@
 var assert = require("assert");
+var should = require("should");
 var router = require("../libs/router");
 
 var options = {
@@ -24,29 +25,30 @@ describe("router", function() {
          router.load("simple", function(err, raw) {
             assert.equal(expected, raw);
             done();
+            assert.equal(1,3);
          });
       });
 
 
-      it("should return the 404 page if the handler doesn't exist", function() {
+      it("should return the 404 page if the handler doesn't exist", function(done) {
          var expected = "this is the 404 template\n";
-         router.load("noHandlerHere", function(resp, head, err, raw) {
+         router.load("noHandlerHere", function(err, raw) {
             assert.equal(expected, raw);
             done();
          });
       });
 
-      it("should return the 404 page if handler does not have a markup method and there is no template", function() {
+      it("should return the 404 page if handler does not have a markup method and there is no template", function(done) {
          var expected = "this is the 404 template\n";
-         router.load("noMatchingTemplate", function(resp, head, err, raw) {
-            assert.strictEqual(expected, raw);
+         router.load("noMatchingTemplate", function(err, raw) {
+            assert.equal(expected, raw);
             done();
          });
       });
 
-      it("should return the index page if given an empty string", function() {
+      it("should return the index page if given an empty string", function(done) {
          var expected = "this is the index page\n";
-         router.load("", function(resp, head, err, raw) {
+         router.load("", function(err, raw) {
             assert.equal(expected, raw);
             done();
          });
