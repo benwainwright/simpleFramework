@@ -5,29 +5,34 @@
    },
    "types": {
       "css"    : {
-         "dirs": ["styles"],
-         "type": "text/css"
+         "dirs"   : ["styles"],
+         "type"   : "text/css",
+         "expires": 604800
       },
       "js": {
-         "dirs": ["scripts-dist"],
-         "type": "application/javascript"
+         "dirs"   : ["scripts-dist"],
+         "type"   : "application/javascript",
+         "expires": 604800
       },
       "ico": {
-         "dirs": ["icons"],
-         "type": "image/x-icon"
+         "dirs"   :   ["icons"],
+         "type"   :   "image/x-icon",
+         "expires":604800
       },
       "jpg": {
          "dirs"   : ["images"],
          "type"   : "image/jpeg",
-         "expires": 86400
+         "expires": 604800
       },
       "png": {
-         "dirs": ["images", "icons"],
-         "type": "image/png"
+         "dirs"   : ["images", "icons"],
+         "type"   : "image/png",
+         "expires": 604800
       },
       "svg": {
-         "dirs": ["images", "icons"],
-         "type": "image/svg+xml"
+         "dirs"   : ["images", "icons"],
+         "type"   : "image/svg+xml",
+         "expires": 604800
       },
       "map": {
          "dirs": ["scripts-maps"],
