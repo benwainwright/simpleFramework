@@ -15,12 +15,12 @@ module.exports = (function server() {
    var md5     = require("md5");
 
    /* Constants */
-   var devMode      = false;
-   var BACKLOG      = 511;
-   var httpCode     = {
-      OK          : 200,
-      NOT_FOUND   : 404,
-      NOT_MODIFIED: 304
+   var devMode   = false;
+   var BACKLOG   = 511;
+   var codes     = {
+      OK        : 200,
+      NOT_FOUND : 404,
+      UNMODIFIED: 304
    };
 
    var serv = http.createServer(requestHandler);
@@ -30,8 +30,7 @@ module.exports = (function server() {
       initLogObject(request, response);
       resource = parser.parse(request);
       if(etagUnchanged(request, resource) === true) {
-         writeResponse(response, resource,
-                       httpCode.NOT_MODIFIED);
+         writeResponse(response, resource, codes.UNMODIFIED);
       } else {
          reply = writeResponse.bind(null, response,
                                     resource, code);
@@ -48,9 +47,9 @@ module.exports = (function server() {
       var head  = makeHeader(resource);
 
       if(!err && code === undefined) {
-         code = httpCode.OK;
+         code = codes.OK;
       } else if(code === undefined) {
-         code = httpCode.NOT_FOUND;
+         code = codes.NOT_FOUND;
       }
       response.writeHead(code, head);
       response.log.statusCode = code;
