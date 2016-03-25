@@ -1,7 +1,7 @@
 /*
  * Main module for our web server, responsble for parsing
- * the command line, then loading and initialising the
- * necessary components.
+ * the command line, loading and injecting dependencies, then
+ * starting the server necessary components.
  */
 module.export = (function Main() {
    "use strict";
@@ -14,6 +14,10 @@ module.export = (function Main() {
 
    process.argv.forEach(parseCommandLine);
 
+   /*
+    * Parse command line, setting options as we go
+    * then start everything after the last argument
+    */
    function parseCommandLine(val, index, array) {
       switch(val) {
          case "--NOREQCACHE" : noCache = true; break;
@@ -33,6 +37,10 @@ module.export = (function Main() {
       parser = load.lib("requestParser", noCache);
    }
 
+   /*
+    * Wire everything up; inject configuration object
+    * and dependencies, then start the server
+    */
    function configLoaded(config) {
       router.init(config);
       parser.init(config);
@@ -40,4 +48,8 @@ module.export = (function Main() {
       server.setParser(parser);
       server.start(config, devMode);
    }
+
+   return {
+      stop: server.stop
+   };
 }());

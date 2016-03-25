@@ -1,10 +1,15 @@
+/*
+ * The web server module. Handles HTTP requests,
+ * builds headers, delegates to the request parser
+ * and router modules
+ */
 module.exports = (function server() {
    "use strict";
 
    var router, config,
        returnObject, parser;
 
-   /* Built in modules */
+   /* Node packages */
    var http    = require("http");
    var fs      = require("fs");
    var md5     = require("md5");
@@ -18,13 +23,8 @@ module.exports = (function server() {
       NOT_MODIFIED: 304
    };
 
-   var serv         = http.createServer(requestHandler);
+   var serv = http.createServer(requestHandler);
 
-   /* TODO there is a bug in the way that file
-      paths are created in the request parsing
-      functions. This would be a good candidate
-      for separation into a new module so that it
-      is testable */
    function requestHandler(request, response) {
       var resource, reply, code;
       initLogObject(request, response);
@@ -34,11 +34,6 @@ module.exports = (function server() {
                        httpCode.NOT_MODIFIED,
                        null, null);
       } else {
-         if(resource.allowed === false) {
-            code = httpCode.NOT_FOUND;
-         } else {
-            code = httpCode.OK;
-         }
          reply = writeResponse.bind(null, response,
                                     resource, code);
          try {
@@ -102,6 +97,7 @@ module.exports = (function server() {
          return modTime.toUTCString();
       } catch(e) {
          // TODO handle this exception
+         return null;
       }
    }
 
