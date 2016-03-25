@@ -31,8 +31,7 @@ module.exports = (function server() {
       resource = parser.parse(request);
       if(etagUnchanged(request, resource) === true) {
          writeResponse(response, resource,
-                       httpCode.NOT_MODIFIED,
-                       null, null);
+                       httpCode.NOT_MODIFIED);
       } else {
          reply = writeResponse.bind(null, response,
                                     resource, code);
