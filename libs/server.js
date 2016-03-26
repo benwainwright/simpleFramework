@@ -7,10 +7,12 @@ module.exports = (function server() {
    "use strict";
 
    var router, config,
-       returnObject, parser;
+       returnObject, parser,
+       servHttp, servHttps;
 
    /* Node packages */
    var http    = require("http");
+   var https   = require("https");
    var fs      = require("fs");
    var md5     = require("md5");
 
@@ -169,20 +171,36 @@ module.exports = (function server() {
       console.log(logText);
    }
 
+   function startServer(serverConfig, dev) {
+      var certs;
+      var host    = serverConfig.host;
+      var hpPort  = serverConfig.ports.http;
+      var hpsPort = serverConfig.ports.https;
+
+      config = serverConfig;
+      if(dev) {
+         console.log("Development mode on...");
+         devMode = dev;
+      }
+      servHttp  = http.createServer(requestHandler);
+      servHttp.listen(hpPort, host, BACKLOG, onListen);
+      if(config.ssl !== undefined) {
+         certs  = {
+            key : fs.readFileSync(config.ssl.key),
+            cert: fs.readFileSync(config.ssl.cert)
+         };
+         servHttps = https.createServer(certs, requestHandler);
+         servHttps.listen(hpsPort, host, BACKLOG, onListen);
+      }
+   }
+
    returnObject = {
-      start    : function(serverConfig, dev) {
-         if(dev) {
-            console.log("Development mode on...");
-            devMode = dev;
-         }
-         config = serverConfig;
-         serv.listen(config.ports.http,
-                     config.host,
-                     BACKLOG,
-                     onListen);
-      },
+      start    : startServer,
       stop     : function(callback) {
-         serv.close(callback);
+         servHttp.close(callback);
+         if(servHttps !== undefined) {
+            servHttps.close(callback);
+         }
       },
       setRouter: function(theRouter) {
          router = theRouter;
