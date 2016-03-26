@@ -25,8 +25,6 @@ module.exports = (function server() {
       UNMODIFIED: 304
    };
 
-   var serv = http.createServer(requestHandler);
-
    function requestHandler(request, response) {
       var resource, reply, code;
       initLogObject(request, response);
@@ -136,11 +134,11 @@ module.exports = (function server() {
       return head;
    }
 
-   function onListen() {
-      console.log("Server at "          +
-                  config.host           +
-                  " listening on port " +
-                  config.ports.http);
+   function onListen(protocol, host, port) {
+      console.log("Listening on "  +
+                  protocol + "://" +
+                  host     + ":"   +
+                  port     + "/");
    }
 
    function initLogObject(request, response) {
@@ -171,26 +169,39 @@ module.exports = (function server() {
       console.log(logText);
    }
 
+   function setupServer(module, host, port, sslOpts) {
+      var serv, listenHandler, protocol;
+      if(sslOpts !== undefined) {
+         protocol = "https";
+         serv     = module.createServer(sslOpts, requestHandler);
+      } else {
+         protocol = "http";
+         serv     = module.createServer(requestHandler);
+      }
+      listenHandler = onListen.bind(null, protocol, host, port);
+      serv.listen(port, host, BACKLOG, listenHandler);
+      return serv;
+   }
+
    function startServer(serverConfig, dev) {
       var certs;
       var host    = serverConfig.host;
-      var hpPort  = serverConfig.ports.http;
-      var hpsPort = serverConfig.ports.https;
+      var hpPort        = serverConfig.ports.http;
+      var hpsPort       = serverConfig.ports.https;
 
       config = serverConfig;
       if(dev) {
-         console.log("Development mode on...");
+         console.log("Development mode on");
          devMode = dev;
       }
-      servHttp  = http.createServer(requestHandler);
-      servHttp.listen(hpPort, host, BACKLOG, onListen);
+      console.log("Initializing server...");
+      servHttp = setupServer(http, host, hpPort);
       if(config.ssl !== undefined) {
          certs  = {
             key : fs.readFileSync(config.ssl.key),
             cert: fs.readFileSync(config.ssl.cert)
          };
-         servHttps = https.createServer(certs, requestHandler);
-         servHttps.listen(hpsPort, host, BACKLOG, onListen);
+         servHttps = setupServer(https, host, hpsPort, certs);
       }
    }
 
