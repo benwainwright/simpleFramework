@@ -1,7 +1,16 @@
 /*
  * Main module for our web server, responsble for parsing
  * the command line, loading and injecting dependencies, then
- * starting the server necessary components.
+ * starting the server.
+ *
+ * Note:
+ * By default, server will listen with http only. To configure
+ * https, generate a key/certificate pair and then add the
+ * followingt to config.json
+ * ssl: {
+ *    key : "path/to/your/key",
+ *    cert: "path/to/your/cert"
+ * }
  */
 module.export = (function Main() {
    "use strict";
