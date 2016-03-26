@@ -105,11 +105,11 @@ module.exports = (function() {
       if(!err) {
          try {
             string = raw.toString();
-            if(typeof data === "object") {
+            if(data) { // Non-strict is deliberate
                template = handlebars.compile(string, options);
                callback(false, template(data));
             } else {
-               callback(false, raw.toString());
+               callback(false, raw);
             }
          } catch(e) {
             notFound(callback);
