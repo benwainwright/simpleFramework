@@ -4,8 +4,10 @@
 (function() {
    "use strict";
 
-   var canvas    = document.querySelector("canvas");
-   var context   = canvas.getContext("2d");
+   var canvas, context;
+
+   var canvas  = document.querySelector("canvas");
+   var context = canvas.getContext("2d");
 
    /* Constants */
    var WIDTH      = 100;
@@ -16,11 +18,17 @@
    var MAXSIZE    = 3;
    var MINSIZE    = 1;
    var INTERVAL   = 33;
-   var particles = [];
-   var i;
+   var particles  = [];
 
-   for(i = 0; i < 50; i++) {
-      particles.push(new CreateParticle());
+   function createParticles() {
+      var i;
+      canvas = document.querySelector("canvas");
+      if(canvas !== null) {
+         for(i = 0; i < 50; i++) {
+            particles.push(new CreateParticle());
+         }
+      }
+      setInterval(animate, INTERVAL);
    }
 
    function randomIntBetween(start, finish) {
@@ -92,5 +100,6 @@
                   Math.PI * 2, false);
       context.fill();
    }
-   setInterval(animate, INTERVAL);
+
+   createParticles();
 }());

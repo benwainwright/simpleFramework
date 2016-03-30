@@ -21,9 +21,7 @@ module.exports = (function() {
    var loadPage = function loadPage(template, callback) {
       var data, handler, reply;
       var templateName = template === ""? "index" : template;
-
       loadCallback = callback;
-
       try {
          handler     = require(handlerPath(templateName));
          lastHandler = templateName;
@@ -48,6 +46,7 @@ module.exports = (function() {
       } else {
          data = handler.data;
       }
+      return data;
    }
 
    function serve(data, err, raw) {
@@ -61,6 +60,7 @@ module.exports = (function() {
             loadCallback(false, raw.toString());
          }
       } catch(e) {
+         console.log(e.stack);
       }
    }
 
@@ -103,7 +103,7 @@ module.exports = (function() {
       if(callback === undefined) {
          callback = loadCallback;
       }
-      loadPage(notFoundPage, resp, callback);
+      loadPage(notFoundPage, callback);
    }
 
    function templPath(name) {
@@ -117,7 +117,7 @@ module.exports = (function() {
       if(callback === undefined) {
          callback = loadCallback;
       }
-      loadPage(serverErrorPage, resp, callback);
+      loadPage(serverErrorPage, callback);
    }
    Object.freeze(returnObject);
    return returnObject;

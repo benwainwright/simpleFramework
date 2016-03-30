@@ -39,7 +39,7 @@ describe("router", function() {
       it("should return the 404 page if handler does not have a markup method and there is no template", function() {
          var expected = "this is the 404 template\n";
          router.load("noMatchingTemplate", function(resp, head, err, raw) {
-            assert.equal(expected, raw);
+            assert.strictEqual(expected, raw);
             done();
          });
       });

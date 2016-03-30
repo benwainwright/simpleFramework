@@ -5,100 +5,201 @@ module.exports = (function server() {
    var http    = require("http");
    var url     = require("url");
    var fs      = require("fs");
+   var md5     = require("md5");
    var devMode = false;
+   var gZip    = true;
 
    var router, config, returnObject;
 
    /* Constants */
    var BACKLOG      = 511;
    var httpCode     = {
-      OK       : 200,
-      NOT_FOUND: 404
+      OK          : 200,
+      NOT_FOUND   : 404,
+      NOT_MODIFIED: 304
    };
 
    var RESOURCESDIR = "resources";
    var serv         = http.createServer(requestHandler);
 
    function requestHandler(request, response) {
-      var reqUrl, path;
-      reqUrl = url.parse(request.url, true);
-      path   = reqUrl.pathname;
-      if(path.split(".").length > 1) {
-         serveFile(path, response);
+      var reqUrl, path, resource, reply;
+      // TODO handl 'not found exception' here
+      resource = parseRequest(request);
+      if(etagUnchanged(request, resource) === true) {
+         writeResponse(response, resource, null, null,
+                       httpCode.NOT_MODIFIED);
       } else {
-         routePages(path, response);
+         try {
+            reqUrl = url.parse(request.url, true);
+            path   = reqUrl.pathname;
+            if(resource.static === true) {
+               serveFile(resource, response);
+            } else {
+               routePages(resource, response);
+            }
+         } catch(e) {
+            reply = writeResponse.bind(null, response, null);
+            router.notFound(response, reply);
+         }
       }
-      logRequest(request, response);
+      logRequest(request, response, resource);
    }
 
-   function routePages(path, response) {
-      var parts = path.split("/");
-      var page  = path === "/"? "" : firstValidPathName(parts);
-      var head = getDefaultHeader();
-      var reply = writeResponse.bind(null, response, head);
+   function etagUnchanged(request, resource) {
+      var reqTag = request.headers["if-none-match"];
+      if(reqTag !== undefined && reqTag === getEtag(resource)) {
+         return true;
+      }
+      return false;
+   }
+
+   function routePages(resource, response) {
+      var reply = writeResponse.bind(null, response, resource);
       try {
-         router.load(page, reply);
+         router.load(resource.page, reply);
          response.servedWith = router.last();
       } catch(e) {
          console.log(e.stack);
       }
    }
 
-   function writeResponse(response, head, err, raw) {
-      if(!err) {
-         if(head === undefined) {
-            head = getDefaultHeader();
-         }
-         response.writeHead(httpCode.OK, head);
-         response.write(raw);
-         response.end();
-      } else {
-         response.writeHead(httpCode.NOT_FOUND, head);
-         response.end();
+   function writeResponse(response, resource, err, raw, code) {
+      var head  = makeHeader(resource);
+      if(!err && code === undefined) {
+         code = httpCode.OK;
+      } else if(code === undefined) {
+         code = httpCode.NOT_FOUND;
       }
+      response.writeHead(code, head);
+      if(raw) {
+         response.write(raw);
+      }
+      response.end();
    }
 
-   function makeHeader(filename) {
-      var parts     = filename.split(".");
-      var extension = parts[parts.length - 1];
-      var head = {
-         "Content-Type": getContentType(extension)
-      };
+   function lastModified(resource) {
+      var filename = resource.fileNameAbs;
+      return fs.statSync(filename).mtime;
+}
 
-      if(extension === "js" && devMode) {
-         head["x-sourcemap"] = "/scripts-maps/" +
-                               filename + ".map";
+   function getEtag(resource) {
+      var modTime = lastModified(resource);
+      return md5(modTime + resource.filename);
+   }
+
+   function makeLastModHead(resource) {
+      var modTime = lastModified(resource);
+      return modTime.toUTCString();
+   }
+
+   function makeCacheControl(resource) {
+      var cacheControl = "",
+          expires      = resource.expires;
+      if(resource.static === true) {
+         cacheControl += "public";
+      } else {
+         cacheControl += "private";
+      }
+      if(expires !== undefined) {
+         cacheControl += ", max-age=" + expires;
+      }
+      return cacheControl;
+   }
+
+   function makeHeader(resource) {
+      var ext   = resource.ext;
+      var name  = resource.fileName;
+      var head  = { };
+      var map   = "/scripts-maps/" + name + ".map";
+
+      head["Content-Type"]  = resource.type;
+      head["Cache-Control"] = makeCacheControl(resource);
+      if(resource.static === true) {
+         head["Last-Modified"] = makeLastModHead(resource);
+         head.Etag = getEtag(resource);
+      } else {
+         head["Content-Type"] += "; charset=utf-8";
+      }
+
+      if(ext === "js" && devMode) {
+         head["x-sourcemap"] = map;
       }
       return head;
    }
 
-   function serveFile(file, response) {
-      var parts     = file.split(".");
-      var extension = parts[parts.length - 1];
-      var head;
-      try {
-         servecontents(file, extension, response, head);
-      } catch(e) {
-         console.log(e.stack);
-         notFound(response);
+   function parseRequest(request) {
+      var parts, resource  = { };
+      resource.url = url.parse(request.url, true);
+      parts        = resource.url.path.split(".");
+      if(parts.length > 1) {
+         parseStaticUrl(resource, parts);
+      } else {
+         parsePageUrl(resource, request);
+      }
+      return resource;
+   }
+
+   function getHtmlTypeFromAccept(request) {
+      var xhtml   = "application/xhtml+xml";
+      var html    = "text/html";
+      var parts, type, i, len;
+      if(request.headers.accept !== undefined) {
+         parts = request.headers.accept.split(",");
+         len   = parts.length;
+         for(i = 0; i < len && type === undefined; i++) {
+            if(parts[i].indexOf(xhtml) >= 0) {
+               type = xhtml;
+            }
+         }
+         return type === undefined? html : type;
+      }
+      return html;
+   }
+
+   function parsePageUrl(resource, request) {
+      var accept;
+      var url     = resource.url.pathname;
+      var parts   = url.split("/");
+      resource.type   = getHtmlTypeFromAccept(request);
+      resource.static = false;
+      if(url === "/") {
+         resource.page = "";
+      } else {
+         resource.page = firstValidPathName(parts);
       }
    }
 
-   function servecontents(file, extension, response, head) {
-      var parts    = file.split("/");
-      var name     = parts[parts.length - 1];
-      var dir      = parts[parts.length - 2];
-      var filename = RESOURCESDIR + "/" +
-                     dir          + "/" +
-                     name;
-      var reply    = writeResponse.bind(null, response, head);
-      if(config.types.hasOwnProperty(extension) &&
-         config.types[extension].dirs.indexOf(dir) !== -1) {
-         head = makeHeader(name);
-         fs.readFile(filename, reply);
-         response.servedWith = filename;
+   function parseStaticUrl(resource, parts) {
+      var url               = resource.url.pathname;
+      resource.static       = true;
+      resource.ext          = parts[parts.length - 1];
+      parts                 = url.split("/");
+      resource.fileName     = parts[parts.length - 1];
+      resource.bareName     = resource.fileName.split(".")[0];
+      resource.dir          = parts[parts.length - 2];
+      resource.fileNameAbs  = RESOURCESDIR  + "/" +
+                              resource.dir  + "/" +
+                              resource.fileName;
+      if(config.types.hasOwnProperty(resource.ext)) {
+         resource.type    = config.types[resource.ext].type;
+         resource.expires = config.types[resource.ext].expires;
       } else {
-         throw "not allowed";
+         throw "Not allowed";
+      }
+   }
+
+   function serveFile(resource, response) {
+      var dir   = resource.dir;
+      var ext   = resource.ext;
+      var reply = writeResponse.bind(null, response, resource);
+
+      if(config.types.hasOwnProperty(ext) &&
+         config.types[ext].dirs.indexOf(dir) !== -1) {
+         fs.readFile(resource.fileNameAbs, reply);
+         response.servedWith = resource.fileNameAbs;
+      } else {
+         // Fix this
       }
    }
 
@@ -120,38 +221,24 @@ module.exports = (function server() {
       return "";
    }
 
-   function getContentType(extension) {
-      if(config.types.hasOwnProperty(extension)) {
-         return config.types[extension].type;
-      } else {
-         throw "Not allowed";
-      }
-   }
+   function logRequest(request, response, resource) {
+      var d        = new Date();
+      var timeDate = d.toTimeString() + " " + d.toDateString();
+      var address  = request.connection.remoteAddress;
+      var reqText  = request.method + " " + request.url;
+      var code     = response.statusCode;
+      var type     = resource? resource.type : "text/html";
 
-   function logRequest(request, response) {
-      var d   = new Date();
-      var log = "when [" + d.toTimeString()                  +
-                " " + d.toDateString() + "] - "              +
-                "from [" + request.connection.remoteAddress  +
-                "] - " + "request [" + request.method + " "  +
-                request.url + "]";
+      var log = "[when=> "    + timeDate + "] " +
+                "[host=> "    + address  + "] " +
+                "[request=> " + reqText  + "] " +
+                "[type=> "    + type     + "] " +
+                "[status=> "  + code     + "] ";
+
       if(response.servedWith !== undefined) {
-         log += " - served [" + response.servedWith + "]";
+         log += " [with=> " + response.servedWith + "]";
       }
       console.log(log);
-   }
-
-   function notFound(response) {
-      var cType = { "Content-type": "text/plain" };
-      response.writeHead(httpCode.NOT_FOUND, cType);
-      response.write("Not found :-(");
-      response.servedWith = "notFound()";
-      response.end();
-   }
-
-   // TODO: Content negotiation
-   function getDefaultHeader() {
-      return "text/html";
    }
 
    returnObject = {
@@ -166,7 +253,9 @@ module.exports = (function server() {
                      BACKLOG,
                      onListen);
       },
-
+      stop     : function(callback) {
+         serv.close(callback);
+      },
       setRouter: function(theRouter) {
          router = theRouter;
       }

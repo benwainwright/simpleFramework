@@ -17,8 +17,9 @@
          "type": "image/x-icon"
       },
       "jpg": {
-         "dirs": ["images"],
-         "type": "image/jpeg"
+         "dirs"   : ["images"],
+         "type"   : "image/jpeg",
+         "expires": 86400
       },
       "png": {
          "dirs": ["images", "icons"],
