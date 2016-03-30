@@ -58,7 +58,6 @@
       type VARCHAR(40) NOT NULL
    );
 
-
    CREATE TABLE Person (
       id INT PRIMARY KEY NOT NULL,
       name VARCHAR(40) NOT NULL,
@@ -135,7 +134,7 @@
 
    CREATE TABLE Season_Episode (
       id_season INT NOT NULL,
-      id_episode INT NOT NULL,
+      id_episode INT UNIQUE NOT NULL,
       CONSTRAINT episodeID FOREIGN KEY (id_episode) REFERENCES Episode(id),
       CONSTRAINT seasonID FOREIGN KEY (id_season) REFERENCES Season(id),
       PRIMARY KEY(id_episode, id_season)
