@@ -20,6 +20,8 @@ module.export = (function Main() {
    var load    = require("./load");
    var noCache = false;
    var devMode = false;
+   var gzip    = false;
+
    var config, server,
        router, parser;
 
@@ -33,6 +35,7 @@ module.export = (function Main() {
       switch(val) {
          case "--NOREQCACHE" : noCache = true; break;
          case "--DEV"        : devMode = true; break;
+         case "--GZIP"       : gzip    = true; break;
       }
 
       if(index === array.length - 1) {
@@ -57,7 +60,7 @@ module.export = (function Main() {
       parser.init(config);
       server.setRouter(router);
       server.setParser(parser);
-      server.start(config, devMode);
+      server.start(config, devMode, gzip);
    }
 
    return {

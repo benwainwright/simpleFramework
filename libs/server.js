@@ -18,6 +18,7 @@ module.exports = (function server() {
 
    /* Constants */
    var devMode   = false;
+   var gzipMode  = false;
    var BACKLOG   = 511;
    var codes     = {
       OK        : 200,
@@ -188,12 +189,13 @@ module.exports = (function server() {
       return serv;
    }
 
-   function startServer(serverConfig, dev) {
+   function startServer(serverConfig, dev, gzip) {
       var certs;
       var host    = serverConfig.host;
       var hpPort        = serverConfig.ports.http;
       var hpsPort       = serverConfig.ports.https;
 
+      gzipMode = gzip;
       config = serverConfig;
       if(dev) {
          console.log("Development mode on");
