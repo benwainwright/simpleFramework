@@ -17,6 +17,7 @@ var nodemon    = require("gulp-nodemon");
 var mocha      = require("gulp-mocha");
 var complexity = require("gulp-complexity");
 var todo       = require("gulp-todo");
+var responsive = require("gulp-responsive");
 
 var paths = {
    scripts   : "resources/scripts/",
@@ -25,7 +26,9 @@ var paths = {
    scriptdist: "resources/scripts-dist/",
    libs      : "libs/",
    handlers  : "pages/handlers/",
-   tests     : "test/"
+   tests     : "test/",
+   images    : "resources/images/",
+   respImages: "resources/images-resp/"
 };
 
 var src = [
@@ -62,15 +65,69 @@ var noDemonSettings = {
    tasks : ["lint", "scripts", "sass"]
 };
 
+var responsiveSettings = {
+   "*": [
+      {
+         width : 300,
+         rename: { suffix: "-SMALL" }
+      },
+      {
+         width : 300,
+         rename: {
+            suffix : "-SMALL",
+            extname: ".webp"
+         },
+         format: "webp"
+      },
+      {
+         width : 500,
+         rename: { suffix: "-MEDIUM" }
+      },
+      {
+         width : 500,
+         rename: {
+            suffix : "-MEDIUM",
+            extname: ".webp"
+         },
+         format: "webp"
+      },
+      {
+
+         width : 1000,
+         rename: { suffix: "-BIG" }
+      },
+      {
+         width :1000,
+         rename: {
+            suffix: "-BIG",
+            extname: ".webp"
+         },
+         format: "webp"
+      },
+
+   ]
+};
+
+gulp.task("images", function() {
+   gulp.src(paths.images + "*.{jpg,png}")
+      .pipe(responsive(responsiveSettings))
+      .pipe(gulp.dest(paths.respImages));
+});
+
 gulp.task("clean", function() {
    return del([
       paths.scripts  + "*.js~",
       paths.sass     + "**/*.js~",
       paths.libs     + "*.js~",
       paths.handlers + "**/*.js~",
-      paths.tests    + "*.js~"
+      paths.tests    + "*.js~",
+      paths.respImages + "*.{png,jpg,jpeg,webp}",
+      paths.scriptsdist + "*.js",
+      paths.styles + "*.css"
    ]);
 });
+
+gulp.task("build", ["clean", "sass", "scripts", "images"]);
 
 gulp.task("complexity", function() {
    return gulp.src(src)
@@ -128,7 +185,7 @@ gulp.task("scripts", function() {
       .pipe(concat("scripts.min.js"))
       .pipe(uglify())
       .pipe(size())
-      .pipe(sourcemaps.write("../scripts.maps"))
+      .pipe(sourcemaps.write("../scripts-maps"))
       .pipe(gulp.dest(paths.scriptdist));
 });
 

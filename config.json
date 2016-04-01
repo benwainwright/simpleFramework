@@ -26,12 +26,12 @@
          "expires":604800
       },
       "jpg": {
-         "dirs"   : ["images"],
+         "dirs"   : ["images", "images-resp"],
          "type"   : "image/jpeg",
          "expires": 604800
       },
       "png": {
-         "dirs"   : ["images", "icons"],
+         "dirs"   : ["images", "icons", "images-resp"],
          "type"   : "image/png",
          "expires": 604800
       },

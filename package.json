@@ -36,6 +36,7 @@
     "gulp-nodemon": "^2.0.6",
     "gulp-notify": "^2.2.0",
     "gulp-order": "^1.1.1",
+    "gulp-responsive": "^2.2.0",
     "gulp-sass": "^2.2.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-todo": "^4.1.0",
@@ -43,14 +44,14 @@
     "gulp-uncss": "^1.0.5",
     "jshint-stylish": "^2.1.0",
     "mocha": "^2.4.5",
-    "should": "^8.3.0",
+    "should": "^8.3.0"
   },
   "dependencies": {
     "clear-require": "^1.0.1",
     "columnify": "^1.5.4",
     "handlebars": "^4.0.5",
-     "md5": "^2.1.0",
-    "sqlite3": "^3.1.2",
+    "md5": "^2.1.0",
+    "sqlite3": "^3.1.2"
   },
   "private": true
 }

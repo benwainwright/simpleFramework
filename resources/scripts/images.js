@@ -42,17 +42,30 @@
          }
       }
 
+      function addResponsiveDir(url) {
+         var newUrl = url.split("/");
+         var position = newUrl.indexOf("images");
+         if(position !== -1) {
+            newUrl[position] = "images-resp";
+         }
+         return newUrl.join("/");
+      }
+
       function changeImage(image, url) {
          var rollBack = rollBackLoad.bind(null,
                                           image,
                                           image.src);
+         var newUrl = addResponsiveDir(url);
          image.addEventListener("error", rollBack);
-         image.src = url;
+         image.src = newUrl;
       }
 
+      /*
+       * Does the img tag contain the value contained
+       * in 'size' in its 'data-sizes' attribute?
+       */
       function hasSize(image, size) {
          var sizes, i;
-
          if(image.dataset.sizes !== undefined) {
             sizes = image.dataset.sizes.split(",");
             for(i = 0; i < sizes.length; i++) {
@@ -68,6 +81,13 @@
          image.src = goBackTo;
       }
 
+      /*
+       * Takes the image url and a 'size' string
+       * (such as 'BIG') and adds the size string
+       * to the end of the file name before the
+       * extension. Also saves the original filename
+       * into the 'data-baseSrc' attribute
+       */
       function addSize(image, size) {
          var theUrl, ext, everythingElse;
 
