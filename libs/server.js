@@ -25,6 +25,11 @@ module.exports = (function server() {
       UNMODIFIED: 304
    };
 
+   /*
+    * Returns a 304 if the client sends an 'if-none-matched'
+    * header and a matching eTag. Otherwise parses the request
+    * gives it to the router
+    */
    function requestHandler(request, response) {
       var resource, reply, code;
       initLogObject(request, response);

@@ -6,12 +6,14 @@
  * Note:
  * By default, server will listen with http only. To configure
  * https, generate a key/certificate pair and then add the
- * followingt to config.json
+ * following to config.json
  * ssl: {
  *    key : "path/to/your/key",
  *    cert: "path/to/your/cert"
  * }
+ * testing
  */
+
 module.export = (function Main() {
    "use strict";
 
