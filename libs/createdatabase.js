@@ -13,7 +13,6 @@
             }
             db.serialize(function() {
                db.exec(data.toString());
-               console.log(data.toString());
             });
          });
       }
