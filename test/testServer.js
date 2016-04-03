@@ -8,14 +8,16 @@ var url    = "http://localhost:" + port;
 var config = {
    ports: {
       http: port
-   }
+   },
+   host : "localhost"
 };
 
 var mockParser = {
-   parse: function() {
-      return {
+   parse: function(req, resp, callback) {
+      var returnObj = {
          allowed: true
       };
+      callback(returnObj, req, resp);
    }
 };
 
