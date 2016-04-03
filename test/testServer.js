@@ -30,15 +30,12 @@ var mockRouter = {
    }
 };
 
-server.setRouter(mockRouter);
-server.setParser(mockParser);
 
 describe("server", function() {
    before(function () {
+      server.setRouter(mockRouter);
+      server.setParser(mockParser);
       server.start(config);
-   });
-
-   it("Should throw an exception if there is already a server listening on that port", function() {
    });
 
    it("Should return 200 when we ask for the index page", function(done) {

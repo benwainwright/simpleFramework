@@ -67,7 +67,7 @@ module.exports = (function() {
          if(handler.markup !== undefined) {
             callback(handler.markup(env), response);
          } else {
-            data = initData(handler, env);
+            data  = initData(handler, env);
             reply = serve.bind(null, data, callback);
             fs.readFile(templPath(templateName), reply);
          }

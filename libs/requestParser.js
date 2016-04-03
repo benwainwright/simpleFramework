@@ -3,7 +3,8 @@ module.exports = (function() {
 
    var config;
 
-   var url = require("url");
+   var url        = require("url");
+   var formidable = require("formidable");
 
    function getHtmlTypeFromAccept(request) {
       var xhtml   = "application/xhtml+xml";
@@ -92,15 +93,13 @@ module.exports = (function() {
 
    function handlePOSTdata(res, req, resp, callb) {
       var body;
-      req.on("data", readPOSTdata);
-      req.on("end", finishPOSTread);
+      var form = new formidable.IncomingForm();
+      form.parse(req, formParsed);
 
-      function readPOSTdata(data) {
-         body += data;
-      }
-
-      function finishPOSTread() {
-         res.POSTbody = body;
+      function formParsed(err, fields, files) {
+         buildEnvironment(res);
+         res.env.postData = fields;
+         res.env.files    = files;
          callb(res, req, resp);
       }
    }
@@ -134,8 +133,8 @@ module.exports = (function() {
          } else {
             parsePageUrl(res, req);
          }
-         buildEnvironment(res);
          if(req.method === "POST") {
+            buildEnvironment(res);
             handlePOSTdata(res, req, resp, callb);
          } else {
             callb(res, req, resp);

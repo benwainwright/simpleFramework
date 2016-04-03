@@ -191,8 +191,8 @@ module.exports = (function server() {
    function startServer(serverConfig, dev, gzip) {
       var certs;
       var host    = serverConfig.host;
-      var hpPort        = serverConfig.ports.http;
-      var hpsPort       = serverConfig.ports.https;
+      var hpPort  = serverConfig.ports.http;
+      var hpsPort = serverConfig.ports.https;
 
       gzipMode = gzip;
       config = serverConfig;
