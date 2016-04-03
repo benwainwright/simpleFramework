@@ -12,7 +12,7 @@
  *    cert: "path/to/your/cert"
  * }
  */
-module.exports.start = (function Main() {
+module.exports = (function Main() {
    "use strict";
 
    var load    = require("./load");
@@ -24,8 +24,6 @@ module.exports.start = (function Main() {
        router, parser,
        envBuild, output,
        dbLoader, dbInterface;
-
-   process.argv.forEach(parseCommandLine);
 
    /*
     * Parse command line, setting options as we go
@@ -77,6 +75,12 @@ module.exports.start = (function Main() {
    }
 
    return {
-      stop: server.stop
+      start: function(args) {
+         args = args === undefined? process.argv : args;
+         args.forEach(parseCommandLine);
+      },
+      stop : function(callback) {
+         server.stop(callback);
+      }
    };
 }());
