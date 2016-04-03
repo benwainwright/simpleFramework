@@ -92,7 +92,6 @@ module.exports = (function() {
    }
 
    function handlePOSTdata(res, req, resp, callb) {
-      var body;
       var form = new formidable.IncomingForm();
       form.parse(req, formParsed);
 
@@ -102,31 +101,6 @@ module.exports = (function() {
          res.env.files    = files;
          callb(res, req, resp);
       }
-   }
-
-   function buildEnvironment(resource, request) {
-      var env, add, con;
-      if(resource !== undefined) {
-         con = request.connect;
-         env = {
-            method : request.method,
-            headers: request.headers
-         };
-
-         if(con !== undefined) {
-            env.address     = con.remoteAddress;
-            env.ipType      = con.remoteFamily;
-            env.connectedOn = con.localAddress;
-         }
-
-         if(resource !== undefined) {
-            env.address = add;
-            env.type    = resource.type;
-            env.path    = resource.path;
-            env.url     = resource.url;
-         }
-      }
-      resource.env = env;
    }
 
    return {
