@@ -1,4 +1,4 @@
-odule.exports.build = (function() {
+module.exports.build = (function() {
    "use strict";
 
    function buildEnvironment(resource, request) {
