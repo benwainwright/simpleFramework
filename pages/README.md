@@ -34,5 +34,8 @@ Both functions have access to the `environment` object as the first argument, sh
    string : "variables"
 }
 ```
+
+- `environment.postData` If this request is a `POST` request, this variable will contain form data in the same format as `environment.query`
 - `environment.type` The `content-type` header that is to be served with this request
 - `environment.path` An array containing the parsed directory segments of the url. So for the example url used above, this would contain `["thispage", "url"]`
+- `environment.method` The HTTP method used by this request
