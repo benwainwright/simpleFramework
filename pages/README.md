@@ -27,7 +27,8 @@ module.export.markup = function() {
 This function must return a string which will be served directly to the client as the response.
 ## Environment
 Both functions have access to the `environment` object as the first argument, should you want it. This will take the following format:
-- `environment.query` query string data presented as an object with key:value pairs, so if the url was `http://yourdoman/thispage/url/?andsome=query&string=variables`, this would contain
+
+- `environment.query` (Object) query string data presented as an object with key:value pairs, so if the url was `http://yourdoman/thispage/url/?andsome=query&string=variables`, this would contain
 ```javascript
 {
    andsome: "query",
@@ -35,7 +36,7 @@ Both functions have access to the `environment` object as the first argument, sh
 }
 ```
 
-- `environment.postData` If this request is a `POST` request, this variable will contain form data in the same format as `environment.query`
-- `environment.type` The `content-type` header that is to be served with this request
-- `environment.path` An array containing the parsed directory segments of the url. So for the example url used above, this would contain `["thispage", "url"]`
-- `environment.method` The HTTP method used by this request
+- `environment.postData` (Object) If this request is a `POST` request, this variable will contain form data in the same format as `environment.query`
+- `environment.type` (String) The `content-type` header that is to be served with this request
+- `environment.path` (Array) The parsed directory segments of the url. So for the example url used above, this would contain `["thispage", "url"]`
+- `environment.method` (String) The HTTP method used by this request 
