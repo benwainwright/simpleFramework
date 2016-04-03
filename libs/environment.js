@@ -1,4 +1,4 @@
-module.exports.build = (function() {
+odule.exports.build = (function() {
    "use strict";
 
    function buildEnvironment(resource, request) {
@@ -10,7 +10,7 @@ module.exports.build = (function() {
             type   : resource.type
          };
          env.connection = makeConnObject(resource, request);
-         env.url        = makeURLObject(resource, request);
+         env.url        = makeURLObject(resource);
       }
       resource.env = env;
    }
@@ -29,7 +29,7 @@ module.exports.build = (function() {
       return connObject;
    }
 
-   function makeURLObject(resource, request) {
+   function makeURLObject(resource) {
       var urlObject;
       if(resource     !== undefined &&
          resource.url !== undefined) {

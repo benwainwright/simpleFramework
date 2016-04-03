@@ -3,7 +3,7 @@
 var assert = require("assert");
 var parser = require("../libs/requestParser.js");
 var mockEnvBuild = {
-   build: function(resource) {
+   build: function() {
    }
 };
 
@@ -114,7 +114,7 @@ describe("requestParser.js", function() {
          request.url = "/four.jpg";
          parser.parse(request, { }, function(res) {
             assert.equal(res.bareName, "four");
-            done()
+            done();
          });
       });
 

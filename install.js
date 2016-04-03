@@ -1,3 +1,7 @@
+/*
+ * jscs:disable
+ * jshint ignore:start
+ */
 "use strict";
 
 var copy = require("copyfiles");

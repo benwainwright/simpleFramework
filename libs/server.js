@@ -195,15 +195,15 @@ module.exports = (function server() {
    }
 
    returnObject = {
+      setRouter: function(theRouter) {
+         router = theRouter;
+      },
       start    : startServer,
       stop     : function(callback) {
          servHttp.close(callback);
          if(servHttps !== undefined) {
             servHttps.close(callback);
          }
-      },
-      setRouter: function(theRouter) {
-         router = theRouter;
       },
       setParser: function(theParser) {
          parser = theParser;
