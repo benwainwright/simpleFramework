@@ -45,8 +45,7 @@
     "gulp-uncss": "^1.0.5",
     "jshint-stylish": "^2.1.0",
     "mocha": "^2.4.5",
-    "request": "^2.69.0",
-    "should": "^8.3.0"
+    "request": "^2.69.0"
   },
   "dependencies": {
     "clear-require": "^1.0.1",
