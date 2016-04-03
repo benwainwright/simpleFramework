@@ -105,6 +105,21 @@ module.exports = (function() {
       }
    }
 
+   function buildEnvironment(resource) {
+      var env;
+      if(resource !== undefined) {
+         env = {
+            type: resource.type,
+            path: resource.path
+         };
+
+         if(resource.url !== undefined) {
+            env.url = resource.url;
+         }
+      }
+      resource.env = env;
+   }
+
    return {
       init : function(configObject) {
          config = configObject;
@@ -119,6 +134,7 @@ module.exports = (function() {
          } else {
             parsePageUrl(res, req);
          }
+         buildEnvironment(res);
          if(req.method === "POST") {
             handlePOSTdata(res, req, resp, callb);
          } else {

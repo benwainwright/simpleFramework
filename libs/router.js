@@ -57,26 +57,10 @@ module.exports = (function() {
          loadPage(resource.page, callback, resource);
       }
    };
-
-   function environment(resource) {
-      var env;
-      if(resource !== undefined) {
-         env = {
-            type: resource.type,
-            path: resource.path
-         };
-
-         if(resource.url !== undefined) {
-            env.url = resource.url;
-         }
-      }
-      return env;
-   }
-
    function loadPage(page, callback, resource) {
       var data, handler, reply;
       var templateName = page === ""? "index" : page;
-      var env = environment(resource);
+      var env = resource !== undefined? resource.env : { };
       try {
          handler     = require(handlerPath(templateName));
          lastHandler = templateName;
