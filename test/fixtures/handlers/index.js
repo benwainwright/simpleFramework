@@ -1,7 +1,5 @@
-module.exports = (function() {
-   return {
-      data: function() {
-         return { }
-      }
-   };
-}());
+module.exports.data = function() {
+   "use strict";
+
+   return { }
+};

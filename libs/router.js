@@ -54,32 +54,48 @@ module.exports = (function() {
       if(resource.static === true) {
          loadStatic(resource, callback);
       } else {
-         loadPage(resource.page, callback);
+         loadPage(resource.page, callback, resource);
       }
    };
 
-   function loadPage(template, callback) {
+   function environment(resource) {
+      var env;
+      if(resource !== undefined) {
+         env = {
+            type: resource.type,
+            path: resource.path
+         };
+
+         if(resource.url !== undefined) {
+            env.url = resource.url;
+         }
+      }
+      return env;
+   }
+
+   function loadPage(page, callback, resource) {
       var data, handler, reply;
-      var templateName = template === ""? "index" : template;
+      var templateName = page === ""? "index" : page;
+      var env = environment(resource);
       try {
          handler     = require(handlerPath(templateName));
          lastHandler = templateName;
          if(handler.markup !== undefined) {
-            callback(handler.markup(), response);
+            callback(handler.markup(env), response);
          } else {
-            data = initData(handler);
+            data = initData(handler, env);
             reply = serve.bind(null, data, callback);
             fs.readFile(templPath(templateName), reply);
          }
       } catch(e) {
-         handleLoadError(template, callback);
+         handleLoadError(page, callback, resource);
       }
    }
 
-   function initData(handler) {
+   function initData(handler, environment) {
       var data;
       if(typeof handler.data === "function") {
-         data = handler.data();
+         data = handler.data(environment);
       } else {
          data = handler.data;
       }
@@ -105,7 +121,8 @@ module.exports = (function() {
       if(!err) {
          try {
             string = raw.toString();
-            if(data) { // Non-strict is deliberate
+            // Non strict is deliberate here
+            if(data) {
                template = handlebars.compile(string, options);
                callback(false, template(data));
             } else {
