@@ -64,7 +64,7 @@ module.exports = (function Main() {
       var dbiPath = process.cwd() + "/" +
              config.dirs.database + "/interface";
       dbInterface = require(dbiPath);
-      dbInterface.setDB(dbInterface);
+      dbInterface.setDB(db);
       router.init(config, dbInterface);
       parser.init(config);
       parser.insertEnvBuilder(envBuild);
