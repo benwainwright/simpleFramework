@@ -39,6 +39,7 @@
     "gulp-order": "^1.1.1",
     "gulp-responsive": "^2.2.0",
     "gulp-sass": "^2.2.0",
+    "gulp-size": "^2.1.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-todo": "^4.1.0",
     "gulp-uglify": "^1.5.3",
@@ -48,6 +49,7 @@
     "request": "^2.69.0"
   },
   "dependencies": {
+    "body-parser": "^1.15.0",
     "clear-require": "^1.0.1",
     "copyfiles": "^0.2.1",
     "formidable": "^1.0.17",
