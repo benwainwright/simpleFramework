@@ -90,21 +90,40 @@ module.exports = (function() {
       return false;
    }
 
+   function handlePOSTdata(res, req, resp, callb) {
+      var body;
+      req.on("data", readPOSTdata);
+      req.on("end", finishPOSTread);
+
+      function readPOSTdata(data) {
+         body += data;
+      }
+
+      function finishPOSTread() {
+         res.POSTbody = body;
+         callb(res, req, resp);
+      }
+   }
+
    return {
       init : function(configObject) {
          config = configObject;
       },
-      parse: function(request) {
-         var lastInPath, resource  = { };
-         resource.url  = url.parse(request.url, true);
-         resource.path = reconstructPath(resource.url.pathname);
-         lastInPath    = resource.path[resource.path.length - 1];
+      parse: function(req, resp, callb) {
+         var lastInPath, res  = { };
+         res.url  = url.parse(req.url, true);
+         res.path = reconstructPath(res.url.pathname);
+         lastInPath    = res.path[res.path.length - 1];
          if(validFileName(lastInPath)) {
-            parseStaticUrl(resource);
+            parseStaticUrl(res);
          } else {
-            parsePageUrl(resource, request);
+            parsePageUrl(res, req);
          }
-         return resource;
+         if(req.method === "POST") {
+            handlePOSTdata(res, req, resp, callb);
+         } else {
+            callb(res, req, resp);
+         }
       }
    };
 }());

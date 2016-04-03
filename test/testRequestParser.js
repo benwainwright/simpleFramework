@@ -25,211 +25,307 @@ parser.init(config);
 
 describe("requestParser.js", function() {
    describe("parse()", function() {
-      it("should correctly parse the extension from the request", function() {
+      it("should correctly parse the extension from the request", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/file.css";
-         assert.equal(parser.parse(request).ext, "css");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.ext, "css");
+         });
          request.url = "file.js";
-         assert.equal(parser.parse(request).ext, "js");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.ext, "js");
+         });
          request.url = "/onedeep/file.html";
-         assert.equal(parser.parse(request).ext, "html");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.ext, "html");
+         });
          request.url = "/file.jpg";
-         assert.equal(parser.parse(request).ext, "jpg");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.ext, "jpg");
+            done();
+         });
       });
 
-      it("should correctly parse the directory from the request", function() {
+      it("should correctly parse the directory from the request", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/file.css";
-         assert.equal(parser.parse(request).dir, "deep");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.dir, "deep");
+         });
          request.url = "file.js";
-         assert.equal(parser.parse(request).dir, "");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.dir, "");
+         });
          request.url = "/onedeep/file.html";
-         assert.equal(parser.parse(request).dir, "onedeep");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.dir, "onedeep");
+         });
          request.url = "/file.jpg";
-         assert.equal(parser.parse(request).dir, "");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.dir, "");
+            done();
+         });
       });
 
-      it("should correctly parse the absolute path from the request", function() {
+      it("should correctly parse the absolute path from the request", function(done) {
          var expected, request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/file.css";
-         expected = "test/fixtures/resources/deep/file.css";
-         assert.equal(parser.parse(request).fileNameAbs, expected);
+         parser.parse(request, { }, function(res) {
+            expected = "test/fixtures/resources/deep/file.css";
+            assert.equal(res.fileNameAbs, expected);
+         });
          request.url = "file.js";
-         expected = "test/fixtures/resources/file.js";
-         assert.equal(parser.parse(request).fileNameAbs, expected);
+         parser.parse(request, { }, function(res) {
+            expected = "test/fixtures/resources/file.js";
+            assert.equal(res.fileNameAbs, expected);
+         });
          request.url = "/onedeep/file.html";
-         expected = "test/fixtures/resources/onedeep/file.html";
-         assert.equal(parser.parse(request).fileNameAbs, expected);
+         parser.parse(request, { }, function(res) {
+            expected = "test/fixtures/resources/onedeep/file.html";
+            assert.equal(res.fileNameAbs, expected);
+         });
          request.url = "/file.jpg";
-         expected = "test/fixtures/resources/file.jpg";
-         assert.equal(parser.parse(request).fileNameAbs, expected);
+         parser.parse(request, { }, function(res) {
+            expected = "test/fixtures/resources/file.jpg";
+            assert.equal(res.fileNameAbs, expected);
+            done();
+         });
       });
 
-      it("should correctly parse the bare filename (without extension) from the request", function() {
+      it("should correctly parse the bare filename (without extension) from the request", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/one.css";
-         assert.equal(parser.parse(request).bareName, "one");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.bareName, "one");
+         });
          request.url = "two.js";
-         assert.equal(parser.parse(request).bareName, "two");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.bareName, "two");
+         });
          request.url = "/onedeep/three.html";
-         assert.equal(parser.parse(request).bareName, "three");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.bareName, "three");
+         });
          request.url = "/four.jpg";
-         assert.equal(parser.parse(request).bareName, "four");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.bareName, "four");
+            done()
+         });
       });
 
-      it("should correctly parse the filename from the request", function() {
+      it("should correctly parse the filename from the request", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/one.css";
-         assert.equal(parser.parse(request).fileName, "one.css");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.fileName, "one.css");
+         });
          request.url = "two.js";
-         assert.equal(parser.parse(request).fileName, "two.js");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.fileName, "two.js");
+         });
          request.url = "/onedeep/three.html";
-         assert.equal(parser.parse(request).fileName, "three.html");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.fileName, "three.html");
+         });
          request.url = "/four.jpg";
-         assert.equal(parser.parse(request).fileName, "four.jpg");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.fileName, "four.jpg");
+            done();
+         });
       });
 
-      it("should correctly set the correct expires value", function() {
+      it("should correctly set the correct expires value", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/one.css";
-         assert.equal(parser.parse(request).expires, 100);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.expires, 100);
+         });
          request.url = "two.js";
-         assert.equal(parser.parse(request).expires, 12);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.expires, 12);
+            done();
+         });
       });
 
-      it("should correctly set the static value for a static file", function() {
+      it("should correctly set the static value for a static file", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep/one.css";
-         assert.equal(parser.parse(request).static, true);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, true);
+         });
          request.url = "two.js";
-         assert.equal(parser.parse(request).static, true);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, true);
+         });
          request.url = "/onedeep/three.html";
-         assert.equal(parser.parse(request).static, true);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, true);
+         });
          request.url = "/four.jpg";
-         assert.equal(parser.parse(request).static, true);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, true);
+            done();
+         });
       });
 
-      it("should correctly set the page value for a page", function() {
+      it("should correctly set the page value for a page", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep";
-         assert.equal(parser.parse(request).page, "several");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.page, "several");
+         });
          request.url = "/several";
-         assert.equal(parser.parse(request).page, "several");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.page, "several");
+         });
          request.url = "/cats/";
-         assert.equal(parser.parse(request).page, "cats");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.page, "cats");
+         });
          request.url = "/cats";
-         assert.equal(parser.parse(request).page, "cats");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.page, "cats");
+         });
          request.url = "/";
-         assert.equal(parser.parse(request).page, "");
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.page, "");
+            done();
+         });
       });
 
-      it("should correctly set the static value for a page", function() {
+      it("should correctly set the static value for a page", function(done) {
          var request = { headers: { accept: "" }};
          request.url = "/several/levels/deep";
-         assert.equal(parser.parse(request).static, false);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, false);
+         });
          request.url = "/several";
-         assert.equal(parser.parse(request).static, false);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, false);
+         });
          request.url = "/cats/";
-         assert.equal(parser.parse(request).static, false);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, false);
+         });
          request.url = "/cats";
-         assert.equal(parser.parse(request).static, false);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, false);
+         });
          request.url = "/";
-         assert.equal(parser.parse(request).static, false);
+         parser.parse(request, { }, function(res) {
+            assert.equal(res.static, false);
+            done();
+         });
       });
 
-      it("Should interpret odd urls as pages and ignore the odd parts", function() {
+      it("Should interpret odd urls as pages and ignore the odd parts", function(done) {
          var request = { headers: { accept: "" }};
          var parse;
 
          request.url = "/.";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/..";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/...";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
-
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
          request.url = "/./..";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/../..";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/.../..";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "//./..";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/../.";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/../.";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/.hello";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/./hello";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "hello");
-         assert.deepEqual(parse.path, ["hello"]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "hello");
+            assert.deepEqual(resp.path, ["hello"]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/../hello";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "hello");
-         assert.deepEqual(parse.path, ["hello"]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "hello");
+            assert.deepEqual(resp.path, ["hello"]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/..//hello";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "hello");
-         assert.deepEqual(parse.path, ["hello"]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "hello");
+            assert.deepEqual(resp.path, ["hello"]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/hello.";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "");
-         assert.deepEqual(parse.path, [""]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "");
+            assert.deepEqual(resp.path, [""]);
+            assert.equal(resp.static, false);
+         });
 
          request.url = "/../hello//goodbye////fishes";
-         parse = parser.parse(request);
-         assert.equal(parse.page, "hello");
-         assert.deepEqual(parse.path, ["hello", "goodbye", "fishes"]);
-         assert.equal(parse.static, false);
+         parse = parser.parse(request, { }, function(resp) {
+            assert.equal(resp.page, "hello");
+            assert.deepEqual(resp.path, ["hello", "goodbye", "fishes"]);
+            assert.equal(resp.static, false);
+            done();
+         });
       });
    });
 });
