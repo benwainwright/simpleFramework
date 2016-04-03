@@ -1,7 +1,7 @@
 module.exports = (function() {
    "use strict";
 
-   var config;
+   var config, environment;
 
    var url        = require("url");
    var formidable = require("formidable");
@@ -97,33 +97,46 @@ module.exports = (function() {
       form.parse(req, formParsed);
 
       function formParsed(err, fields, files) {
-         buildEnvironment(res);
+         environment.build(res, req, resp);
          res.env.postData = fields;
          res.env.files    = files;
          callb(res, req, resp);
       }
    }
 
-   function buildEnvironment(resource) {
-      var env;
+   function buildEnvironment(resource, request) {
+      var env, add, con;
       if(resource !== undefined) {
+         con = request.connect;
          env = {
-            type: resource.type,
-            path: resource.path
+            method : request.method,
+            headers: request.headers
          };
 
-         if(resource.url !== undefined) {
-            env.url = resource.url;
+         if(con !== undefined) {
+            env.address     = con.remoteAddress;
+            env.ipType      = con.remoteFamily;
+            env.connectedOn = con.localAddress;
+         }
+
+         if(resource !== undefined) {
+            env.address = add;
+            env.type    = resource.type;
+            env.path    = resource.path;
+            env.url     = resource.url;
          }
       }
       resource.env = env;
    }
 
    return {
-      init : function(configObject) {
+      init            : function(configObject) {
          config = configObject;
       },
-      parse: function(req, resp, callb) {
+      insertEnvBuilder: function(builder) {
+         environment = builder;
+      },
+      parse           : function(req, resp, callb) {
          var lastInPath, res  = { };
          res.url  = url.parse(req.url, true);
          res.path = reconstructPath(res.url.pathname);
@@ -134,9 +147,9 @@ module.exports = (function() {
             parsePageUrl(res, req);
          }
          if(req.method === "POST") {
-            buildEnvironment(res);
             handlePOSTdata(res, req, resp, callb);
          } else {
+            environment.build(res, req, res);
             callb(res, req, resp);
          }
       }

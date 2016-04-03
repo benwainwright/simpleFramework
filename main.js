@@ -13,7 +13,7 @@
  * }
  */
 
-module.export = (function Main() {
+module.exports = (function Main() {
    "use strict";
 
    var load    = require("./load");
@@ -22,7 +22,8 @@ module.export = (function Main() {
    var gzip    = false;
 
    var config, server,
-       router, parser;
+       router, parser,
+       envBuild;
 
    process.argv.forEach(parseCommandLine);
 
@@ -44,10 +45,11 @@ module.export = (function Main() {
    }
 
    function loadModules() {
-      config = load.lib("config", noCache);
-      server = load.lib("server", noCache);
-      router = load.lib("router", noCache);
-      parser = load.lib("requestParser", noCache);
+      config   = load.lib("config", noCache);
+      server   = load.lib("server", noCache);
+      router   = load.lib("router", noCache);
+      envBuild = load.lib("environment", noCache);
+      parser   = load.lib("requestParser", noCache);
    }
 
    /*
@@ -57,6 +59,7 @@ module.export = (function Main() {
    function configLoaded(config) {
       router.init(config);
       parser.init(config);
+      parser.insertEnvBuilder(envBuild);
       server.setRouter(router);
       server.setParser(parser);
       server.start(config, devMode, gzip);

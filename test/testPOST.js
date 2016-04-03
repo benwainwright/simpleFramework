@@ -13,6 +13,12 @@ var config = {
    host : "localhost"
 };
 
+var mockEnvBuild = {
+   build: function(resource) {
+      resource.env = { };
+   }
+};
+
 var mockRouter = (function() {
    var mockCallback;
    return {
@@ -30,6 +36,7 @@ var mockRouter = (function() {
 
 describe("Request Parser", function() {
    before(function() {
+      parser.insertEnvBuilder(mockEnvBuild);
       server.start(config);
       server.setRouter(mockRouter);
       server.setParser(parser);

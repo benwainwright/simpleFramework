@@ -2,6 +2,10 @@
 
 var assert = require("assert");
 var parser = require("../libs/requestParser.js");
+var mockEnvBuild = {
+   build: function(resource) {
+   }
+};
 
 var config = {
    dirs : {
@@ -21,6 +25,7 @@ var config = {
    }
 };
 
+parser.insertEnvBuilder(mockEnvBuild);
 parser.init(config);
 
 describe("requestParser.js", function() {
