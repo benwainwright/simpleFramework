@@ -27,16 +27,11 @@ module.export.markup = function() {
 This function must return a string which will be served directly to the client as the response.
 ## Environment
 Both functions have access to the `environment` object as the first argument, should you want it. This will take the following format:
-
-- `environment.query` (Object) query string data presented as an object with key:value pairs, so if the url was `http://yourdoman/thispage/url/?andsome=query&string=variables`, this would contain
-```javascript
-{
-   andsome: "query",
-   string : "variables"
-}
-```
-
-- `environment.postData` (Object) If this request is a `POST` request, this variable will contain form data in the same format as `environment.query`
-- `environment.type` (String) The `content-type` header that is to be served with this request
-- `environment.path` (Array) The parsed directory segments of the url. So for the example url used above, this would contain `["thispage", "url"]`
-- `environment.method` (String) The HTTP method used by this request 
+|Name                  |Type  |Description                                                     |Example                                          |
+|----------------------|------|----------------------------------------------------------------|-------------------------------------------------|
+|`environment.type`    |String|The `content-type` header served with this request              |"text/html"                                      |
+|`environment.query`   |Object|query string data presented as an object with key:value pairs   |`\?ab=cd&df=gh` => `{ ab: "cd", df:"gh"}`        |
+|`environment.postData`|Object|Form data presented in the same format as above                 |Same as above, assuming field names "ab" and "df"|
+|`environment.type`    |String|The `content-type` header that is to be served with this request|"application/xhtml+xml"                          |
+|`environment.path`    |Array |The parsed directory segments of the url                        |`\this\big\path` => `["this", "big", "path"]`    |
+|`environemnt.method`  |String|The HTTP method used by this request                            |"GET"                                            |
