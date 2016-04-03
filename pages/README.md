@@ -1,3 +1,12 @@
+# Request handler
+Making a request to the server on the url
+
+```/handlerName/everything/else/is/ignored ```
+
+will invoke ```handlers/handlerName.js```. Everything after the handler name is ignored for routing, but will be parsed and placed into the 'environment' object (see below).
+
+## Handler Format
+Handlers must follow one of two formats:
 ### Template
 If you wish to use handlebars templates, you must export the  date() function
 ```javascript
