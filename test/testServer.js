@@ -30,11 +30,16 @@ var mockRouter = {
    }
 };
 
+var mockOutput = {
+   log  : function() {},
+   print: function() {}
+};
 
 describe("server", function() {
    before(function () {
       server.setRouter(mockRouter);
       server.setParser(mockParser);
+      server.setOutput(mockOutput);
       server.start(config);
    });
 

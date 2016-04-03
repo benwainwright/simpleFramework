@@ -23,7 +23,7 @@ module.exports = (function Main() {
 
    var config, server,
        router, parser,
-       envBuild;
+       envBuild, output;
 
    process.argv.forEach(parseCommandLine);
 
@@ -50,6 +50,7 @@ module.exports = (function Main() {
       router   = load.lib("router", noCache);
       envBuild = load.lib("environment", noCache);
       parser   = load.lib("requestParser", noCache);
+      output   = load.lib("output", noCache);
    }
 
    /*
@@ -62,6 +63,7 @@ module.exports = (function Main() {
       parser.insertEnvBuilder(envBuild);
       server.setRouter(router);
       server.setParser(parser);
+      server.setOutput(output);
       server.start(config, devMode, gzip);
    }
 

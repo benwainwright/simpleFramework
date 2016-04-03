@@ -6,9 +6,9 @@
 module.exports = (function server() {
    "use strict";
 
-   var router, config,
-       returnObject, parser,
-       servHttp, servHttps;
+   var router, config, returnObject,
+       parser, servHttp, servHttps,
+       output;
 
    /* Node packages */
    var http    = require("http");
@@ -43,7 +43,7 @@ module.exports = (function server() {
             router.load(resource, reply);
             response.servedWith = router.last();
          } catch(e) {
-            console.log(e.stack);
+            output.print(e.stack);
          }
       }
    }
@@ -62,7 +62,7 @@ module.exports = (function server() {
          response.write(raw);
       }
       response.end();
-      logRequest(response, resource);
+      output.log(response, resource);
    }
 
    function etagUnchanged(request, resource) {
@@ -140,10 +140,10 @@ module.exports = (function server() {
    }
 
    function onListen(protocol, host, port) {
-      console.log("Listening on "  +
-                  protocol + "://" +
-                  host     + ":"   +
-                  port     + "/");
+      output.print("Listening on "  +
+                   protocol + "://" +
+                   host     + ":"   +
+                   port     + "/");
    }
 
    function initLogObject(request, response) {
@@ -155,23 +155,6 @@ module.exports = (function server() {
          url     : request.url,
          address : request.connection.remoteAddress
       };
-   }
-
-   /* TODO create a LOGGING module and take the actual printing
-    * out of this one */
-   function logRequest(response, resource) {
-      var log      = response.log;
-      var reqText  = log.method + " " + log.url;
-      var type     = resource? resource.type : "text/html";
-      var logText = "[when=> "    + log.timeDate   + "] " +
-                    "[host=> "    + log.address    + "] " +
-                    "[request=> " + reqText        + "] " +
-                    "[type=> "    + type           + "] " +
-                    "[status=> "  + log.statusCode + "] ";
-      if(response.servedWith !== undefined) {
-         log += " [with=> " + response.servedWith + "]";
-      }
-      console.log(logText);
    }
 
    function setupServer(module, host, port, sslOpts) {
@@ -197,10 +180,10 @@ module.exports = (function server() {
       gzipMode = gzip;
       config = serverConfig;
       if(dev) {
-         console.log("Development mode on");
+         output.print("Development mode on");
          devMode = dev;
       }
-      console.log("Initializing server...");
+      output.print("Initializing server...");
       servHttp = setupServer(http, host, hpPort);
       if(config.ssl !== undefined) {
          certs  = {
@@ -224,6 +207,9 @@ module.exports = (function server() {
       },
       setParser: function(theParser) {
          parser = theParser;
+      },
+      setOutput: function(theOutput) {
+         output = theOutput;
       }
    };
 

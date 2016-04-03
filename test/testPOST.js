@@ -1,11 +1,11 @@
 "use strict";
 
 var server  = require("../libs/server");
-var parser   = require("../libs/requestParser.js");
+var parser  = require("../libs/requestParser.js");
 var request = require("request");
-var assert   = require("assert");
-var port     = 4352;
-var url      = "http://localhost:" + port;
+var assert  = require("assert");
+var port    = 4352;
+var url     = "http://localhost:" + port;
 var config = {
    ports: {
       http: port
@@ -34,12 +34,18 @@ var mockRouter = (function() {
    };
 }());
 
+var mockOutput = {
+   log  : function() {},
+   print: function() {}
+};
+
 describe("Request Parser", function() {
    before(function() {
       parser.insertEnvBuilder(mockEnvBuild);
-      server.start(config);
       server.setRouter(mockRouter);
       server.setParser(parser);
+      server.setOutput(mockOutput);
+      server.start(config);
    });
 
    it("Should correctly parse the POST data into the environment object", function(done) {
