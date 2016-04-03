@@ -27,13 +27,12 @@ module.export.markup = function() {
 
 This function must return a string which will be served directly to the client as the response.
 ## Environment
-Both functions have access to the `environment` object as the first argument, should you want it. This will take the following format:
+Both functions have access to the `environment` object as the first argument, should you want it. The examples in the table below are parsed from the url `http://your.domain.com/abig/sample/url?with=some&querystring=variables`
 
-|Name                  |Type  |Description                                                     |Example                                          |
-|----------------------|------|----------------------------------------------------------------|-------------------------------------------------|
-|`environment.type`    |String|The `content-type` header served with this request              |"text/html"                                      |
-|`environment.query`   |Object|query string data presented as an object with key:value pairs   |`\?ab=cd&df=gh` => `{ ab: "cd", df:"gh"}`        |
-|`environment.postData`|Object|Form data presented in the same format as above                 |Same as above, assuming field names "ab" and "df"|
-|`environment.type`    |String|The `content-type` header that is to be served with this request|"application/xhtml+xml"                          |
-|`environment.path`    |Array |The parsed directory segments of the url                        |`\this\big\path` => `["this", "big", "path"]`    |
-|`environemnt.method`  |String|The HTTP method used by this request                            |"GET"                                            |
+|Name                  |Type  |Description                                                     |Example                                                              |
+|:--------------------:|:----:|:--------------------------------------------------------------:|:-------------------------------------------------------------------:|
+|`environment.query`   |Object|query string data presented as an object with key:value pairs   |`{with: "some", querystring: "variables"}`                           |
+|`environment.postData`|Object|Form data presented in the same format as above                 |Same as above assuming fields "with", and "querystring" exist in form|
+|`environment.type`    |String|The `content-type` header that is to be served with this request|"application/xhtml+xml"                                              |
+|`environment.path`    |Array |The parsed directory segments of the url                        |`\this\big\path` => `["this", "big", "path"]`                        |
+|`environemnt.method`  |String|The HTTP method used by this request                            |"GET"                                                                |
