@@ -54,25 +54,39 @@ module.exports = (function() {
       if(resource.static === true) {
          loadStatic(resource, callback);
       } else {
-         loadPage(resource.page, callback, resource);
+         loadHandler(resource.page, callback, resource);
       }
    };
-   function loadPage(page, callback, resource) {
-      var data, handler, reply;
+
+   function loadHandler(page, callback, resource) {
+      var handler, dbCallb;
       var templateName = page === ""? "index" : page;
-      var env = resource !== undefined? resource.env : { };
       try {
          handler     = require(handlerPath(templateName));
-         lastHandler = templateName;
-         if(handler.markup !== undefined) {
-            callback(handler.markup(env, dbInterface), response);
+         if(handler.database !== undefined) {
+            dbCallb = handle.bind(null, page,
+                                  callback, resource,
+                                  handler);
+            handler.database(dbInterface, dbCallb);
          } else {
-            data  = initData(handler, env);
-            reply = serve.bind(null, data, callback);
-            fs.readFile(templPath(templateName), reply);
+            handle(page, callback, resource, handler);
          }
       } catch(e) {
          handleLoadError(page, callback, resource);
+      }
+   }
+
+   function handle(page, callback, resource, handler) {
+      var data, reply;
+      var env = resource !== undefined? resource.env : { };
+      var templateName = page === ""? "index" : page;
+      lastHandler = templateName;
+      if(handler.markup !== undefined) {
+         callback(handler.markup(env, dbInterface), response);
+      } else {
+         data  = initData(handler, env);
+         reply = serve.bind(null, data, callback);
+         fs.readFile(templPath(templateName), reply);
       }
    }
 
@@ -155,7 +169,7 @@ module.exports = (function() {
       if(callback === undefined) {
          callback = loadCallback;
       }
-      loadPage(notFoundPage, callback);
+      loadHandler(notFoundPage, callback);
    }
 
    function templPath(name) {
@@ -169,7 +183,7 @@ module.exports = (function() {
       if(callback === undefined) {
          callback = loadCallback;
       }
-      loadPage(serverErrorPage, callback);
+      loadHandler(serverErrorPage, callback);
    }
    Object.freeze(returnObject);
    return returnObject;
