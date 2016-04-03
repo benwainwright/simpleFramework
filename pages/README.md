@@ -24,6 +24,7 @@ module.export.markup = function() {
    return "{some string data}";
 }
 ```
+
 This function must return a string which will be served directly to the client as the response.
 ## Environment
 Both functions have access to the `environment` object as the first argument, should you want it. This will take the following format:
