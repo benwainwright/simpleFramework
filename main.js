@@ -11,7 +11,6 @@
  *    key : "path/to/your/key",
  *    cert: "path/to/your/cert"
  * }
- * testing
  */
 
 module.export = (function Main() {
