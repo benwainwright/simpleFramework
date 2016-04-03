@@ -28,6 +28,7 @@ module.export.markup = function() {
 This function must return a string which will be served directly to the client as the response.
 ## Environment
 Both functions have access to the `environment` object as the first argument, should you want it. This will take the following format:
+
 |Name                  |Type  |Description                                                     |Example                                          |
 |----------------------|------|----------------------------------------------------------------|-------------------------------------------------|
 |`environment.type`    |String|The `content-type` header served with this request              |"text/html"                                      |
