@@ -1,9 +1,10 @@
 {
-  "name": "MovieServer",
+  "name": "simpleframework",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
+    "postinstall": "node install.js",
     "test": "mocha",
     "start": "node main.js"
   },
@@ -49,10 +50,11 @@
   },
   "dependencies": {
     "clear-require": "^1.0.1",
+    "copyfiles": "^0.2.1",
+    "formidable": "^1.0.17",
     "handlebars": "^4.0.5",
     "md5": "^2.1.0",
-    "sqlite3": "^3.1.2",
-    "formidable": "^1.0.17"
+    "sqlite3": "^3.1.2"
   },
   "private": true
 }

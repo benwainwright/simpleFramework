@@ -12,8 +12,7 @@
  *    cert: "path/to/your/cert"
  * }
  */
-
-module.exports = (function Main() {
+module.exports.start = (function Main() {
    "use strict";
 
    var load    = require("./load");
