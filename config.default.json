@@ -3,7 +3,8 @@
       "templates" : "pages/templates",
       "handlers"  : "pages/handlers",
       "partials"  : "pages/partials",
-      "resources" : "resources"
+      "resources" : "resources",
+      "database"  : "database"
    },
    "ports": {
       "http"  : 80,

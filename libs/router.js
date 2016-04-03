@@ -9,7 +9,7 @@ module.exports = (function() {
 
    var loadCallback, response,
        lastHandler, returnObject,
-       config;
+       config, dbInterface;
 
    var compilePartials = function(dirName) {
       fs.readdir(dirName, listPartials);
@@ -65,7 +65,7 @@ module.exports = (function() {
          handler     = require(handlerPath(templateName));
          lastHandler = templateName;
          if(handler.markup !== undefined) {
-            callback(handler.markup(env), response);
+            callback(handler.markup(env, dbInterface), response);
          } else {
             data  = initData(handler, env);
             reply = serve.bind(null, data, callback);
@@ -79,7 +79,7 @@ module.exports = (function() {
    function initData(handler, environment) {
       var data;
       if(typeof handler.data === "function") {
-         data = handler.data(environment);
+         data = handler.data(environment, dbInterface);
       } else {
          data = handler.data;
       }

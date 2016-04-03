@@ -22,7 +22,8 @@ module.exports.start = (function Main() {
 
    var config, server,
        router, parser,
-       envBuild, output;
+       envBuild, output,
+       dbLoader, dbInterface;
 
    process.argv.forEach(parseCommandLine);
 
@@ -50,14 +51,23 @@ module.exports.start = (function Main() {
       envBuild = load.lib("environment", noCache);
       parser   = load.lib("requestParser", noCache);
       output   = load.lib("output", noCache);
+      dbLoader = load.lib("database", noCache);
+   }
+
+   function configLoaded(config) {
+      dbLoader.init(config, dbLoaded);
    }
 
    /*
     * Wire everything up; inject configuration object
     * and dependencies, then start the server
     */
-   function configLoaded(config) {
-      router.init(config);
+   function dbLoaded(db, config) {
+      var dbiPath = process.cwd() + "/" +
+             config.dirs.database + "/interface";
+      dbInterface = require(dbiPath);
+      dbInterface.setDB(dbInterface);
+      router.init(config, dbInterface);
       parser.init(config);
       parser.insertEnvBuilder(envBuild);
       server.setRouter(router);
