@@ -96,7 +96,7 @@ module.exports = (function() {
       if(!err) {
          if(handler.database !== undefined) {
             reply = serve.bind(null, callback, raw);
-            handler.database(resource, dbInterface, reply);
+            handler.database(env, dbInterface, reply);
          } else {
             data = initData(handler, env);
             serve(callback, raw, data);
