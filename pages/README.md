@@ -30,7 +30,7 @@ module.export.database = function(resource, database, done) {
    done(data);
 }
 ```
-The second parameter `database` refers to the database API which is created by the user. This file must be called './database/interface.js' and must contain a module that implements a `setDb()` method that the framework can call in order to supply the loaded database, and a series of method that handlers can call to retrieve or manipulate data. Note that you MUST call the `done()` callback method, with a data object passed in as a parameter. The properties of this object will then be bound to the corresponding handlebars template.
+The second parameter `database` refers to the database API which is created by the user. This file (which will be automatically loaded by the framework) must be called './database/interface.js' and must contain a module that implements a `setDb()` method that the framework can call in order to supply the loaded database, and a series of method that handlers can call to retrieve or manipulate data. Note that you MUST call the `done()` callback method, with a data object passed in as a parameter. The properties of this object will then be bound to the corresponding handlebars template.
 
 ### Markup
 If you want to bypass templates and generate the markup for the request directly, you can export the markup() function. 
