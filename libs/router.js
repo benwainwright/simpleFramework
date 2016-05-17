@@ -1,3 +1,9 @@
+/*
+ * This module is given the parsed 'resource'
+ * object by the server and is responsible for
+ * actually finding the resource and returning
+ * the correct data
+ */
 module.exports = (function() {
    "use strict";
 
@@ -59,34 +65,44 @@ module.exports = (function() {
    };
 
    function loadHandler(page, callback, resource) {
-      var handler, dbCallb;
+      var handler;
       var templateName = page === ""? "index" : page;
       try {
-         handler     = require(handlerPath(templateName));
-         if(handler.database !== undefined) {
-            dbCallb = handle.bind(null, page,
-                                  callback, resource,
-                                  handler);
-            handler.database(dbInterface, dbCallb);
-         } else {
-            handle(page, callback, resource, handler);
-         }
+         handler = require(handlerPath(templateName));
+         getMarkup(page, callback, resource, handler);
       } catch(e) {
          handleLoadError(page, callback, resource);
       }
    }
 
-   function handle(page, callback, resource, handler) {
-      var data, reply;
+   function getMarkup(page, callback, resource, handler) {
+      var next;
       var env = resource !== undefined? resource.env : { };
       var templateName = page === ""? "index" : page;
       lastHandler = templateName;
       if(handler.markup !== undefined) {
-         callback(handler.markup(env, dbInterface), response);
+         callback(handler.markup(env), response);
       } else {
-         data  = initData(handler, env);
-         reply = serve.bind(null, data, callback);
-         fs.readFile(templPath(templateName), reply);
+         next = getData.bind(null, callback,
+                             handler, resource,
+                             env);
+         fs.readFile(templPath(templateName), next);
+      }
+   }
+
+   function getData(callback, handler, resource,
+                    env, err, raw) {
+      var reply, data;
+      if(!err) {
+         if(handler.database !== undefined) {
+            reply = serve.bind(null, callback, raw);
+            handler.database(resource, dbInterface, reply);
+         } else {
+            data = initData(handler, env);
+            serve(callback, raw, data);
+         }
+      } else {
+         notFound(callback);
       }
    }
 
@@ -103,7 +119,7 @@ module.exports = (function() {
    function loadStatic(resource, callback) {
       var dir   = resource.dir;
       var ext   = resource.ext;
-      var reply = serve.bind(null, null, callback);
+      var reply = readStatic.bind(null, null, callback);
 
       if(config.types.hasOwnProperty(ext) &&
          config.types[ext].dirs.indexOf(dir) !== -1) {
@@ -113,23 +129,28 @@ module.exports = (function() {
       }
    }
 
-   function serve(data, callback, err, raw) {
+   function readStatic(callback, raw, err) {
+      if(!err) {
+         serve(callback, raw);
+      } else {
+         notFound(callback);
+      }
+   }
+
+   function serve(callback, markup, data) {
       var template, string;
       var options = { strict: true };
-      if(!err) {
-         try {
-            string = raw.toString();
-            // Non strict is deliberate here
-            if(data) {
-               template = handlebars.compile(string, options);
-               callback(false, template(data));
-            } else {
-               callback(false, raw);
-            }
-         } catch(e) {
-            notFound(callback);
+      try {
+         string = markup.toString();
+         // Non strict is deliberate here
+         if(data) {
+            template = handlebars.compile(string, options);
+            callback(false, template(data));
+         } else {
+            callback(false, markup);
          }
-      } else {
+      } catch(e) {
+         console.log(e);
          notFound(callback);
       }
    }
