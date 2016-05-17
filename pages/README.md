@@ -6,7 +6,7 @@ Making a request to the server on the url
 will invoke `handlers/handlerName.js`. Everything after the handler name is ignored for routing, but will be parsed and placed into the 'environment' object (see below).
 
 ## Handler Format
-Handlers must follow one of two formats:
+Handlers must follow one of three formats:
 ### Template
 If you wish to use handlebars templates, you must export the `data()` function
 ```javascript
@@ -16,6 +16,22 @@ module.export.data = function(environment) {
 };
 ```
 This function must return an object and there MUST be a file called `handlerName.html` in the templates directory, which should be a valid Handlebars template. Keys from the returned object will be bound to the template before it is served to the client.
+### Database
+If you wish to use handlebars templates in conjunction with a provided database interface, you must export the `database()` function
+```javascript
+module.export.database = function(resource, database, done) {
+   "use strict";
+   
+   var data = { };
+   
+   // some database code that makes use of the database interface passed in and 
+   // sets the properties of the data object defined above'
+   
+   done(data);
+}
+```
+The second parameter `database` refers to the database API which is created by the user. This file must be called './database/interface.js' and must contain a module that implements a `setDb()` method that the framework can call in order to supply the loaded database, and a series of method that handlers can call to retrieve or manipulate data. Note that you MUST call the `done()` callback method, with a data object passed in as a parameter. The properties of this object will then be bound to the corresponding handlebars template.
+
 ### Markup
 If you want to bypass templates and generate the markup for the request directly, you can export the markup() function. 
 ```javascript
