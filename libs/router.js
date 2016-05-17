@@ -119,7 +119,7 @@ module.exports = (function() {
    function loadStatic(resource, callback) {
       var dir   = resource.dir;
       var ext   = resource.ext;
-      var reply = readStatic.bind(null, null, callback);
+      var reply = readStatic.bind(null, callback);
 
       if(config.types.hasOwnProperty(ext) &&
          config.types[ext].dirs.indexOf(dir) !== -1) {
@@ -129,7 +129,7 @@ module.exports = (function() {
       }
    }
 
-   function readStatic(callback, raw, err) {
+   function readStatic(callback, err, raw) {
       if(!err) {
          serve(callback, raw);
       } else {
