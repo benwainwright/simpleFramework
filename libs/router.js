@@ -16,8 +16,14 @@ module.exports = (function() {
 
    var loadCallback, response,
        lastHandler, returnObject,
-       config, dbInterface;
+       config, dbInterface, database;
 
+   /**
+    * Load and compile all partials stored in a specified
+    * directory
+    *
+    * @param dirName Partials directory
+    */
    var compilePartials = function(dirName) {
       fs.readdir(dirName, listPartials);
 
@@ -85,19 +91,20 @@ module.exports = (function() {
          callback(handler.markup(env), response);
       } else {
          next = getData.bind(null, callback,
-                             handler, resource,
-                             env);
+                             handler, env);
          fs.readFile(templPath(templateName), next);
       }
    }
 
-   function getData(callback, handler, resource,
-                    env, err, raw) {
-      var reply, data;
+   function getData(callback, handler, env, err, raw) {
+      var reply, data, dbHandler;
       if(!err) {
          if(handler.database !== undefined) {
             reply = serve.bind(null, callback, raw);
-            handler.database(env, dbInterface, reply);
+            dbHandler = handler.database.bind(null, env,
+                                              dbInterface,
+                                              reply);
+            database.serialize(dbHandler);
          } else {
             data = initData(handler, env);
             serve(callback, raw, data);
@@ -179,8 +186,9 @@ module.exports = (function() {
       load       : load,
       notFound   : notFound,
       serverError: serverError,
-      init       : function(configObj, db) {
-         dbInterface = db;
+      init       : function(configObj, dbInter, db) {
+         dbInterface = dbInter;
+         database    = db;
          config      = configObj;
          if(config.dirs.partials) {
             compilePartials(config.dirs.partials);
