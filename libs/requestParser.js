@@ -3,6 +3,7 @@ module.exports = (function() {
 
    var config, environment;
 
+   var gzip       = false;
    var url        = require("url");
    var formidable = require("formidable");
 
@@ -21,6 +22,20 @@ module.exports = (function() {
          return type === undefined? html : type;
       }
       return html;
+   }
+
+   function parseEncoding(request) {
+      var enc, i;
+      if(gzip && request.headers["accept-encoding"] !== undefined) {
+         enc = request.headers["accept-encoding"].split(",");
+         for(i = 0; i < enc.length; i++) {
+            switch(encoding.trim()) {
+               case "deflate": return "deflate";
+               case "gzip"   : return "gzip";
+            }
+         }
+      }
+      return null;
    }
 
    function parsePageUrl(resource, request) {
@@ -107,13 +122,17 @@ module.exports = (function() {
       init            : function(configObject) {
          config = configObject;
       },
+      gzipOn          : function() {
+         gzip = true;
+      },
       insertEnvBuilder: function(builder) {
          environment = builder;
       },
       parse           : function(req, resp, callb) {
          var lastInPath, res  = { };
-         res.url  = url.parse(req.url, true);
-         res.path = reconstructPath(res.url.pathname);
+         res.url       = url.parse(req.url, true);
+         res.path      = reconstructPath(res.url.pathname);
+         res.encoding  = parseEncoding(req);
          lastInPath    = res.path[res.path.length - 1];
          if(validFileName(lastInPath)) {
             parseStaticUrl(res);

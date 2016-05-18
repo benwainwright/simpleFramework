@@ -7,11 +7,12 @@
 module.exports = (function() {
    "use strict";
 
-   var fs               = require("fs");
-   var handlebars       = require("handlebars");
-   var notFoundPage     = "notfound";
-   var indexPage        = "index";
-   var serverErrorPage  = "error";
+   var fs              = require("fs");
+   var handlebars      = require("handlebars");
+   var sqlite          = require("sqlite3");
+   var notFoundPage    = "notfound";
+   var indexPage       = "index";
+   var serverErrorPage = "error";
 
    var loadCallback, response,
        lastHandler, returnObject,

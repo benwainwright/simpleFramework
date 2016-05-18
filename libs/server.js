@@ -11,16 +11,18 @@ module.exports = (function server() {
        output;
 
    /* Node packages */
-   var http    = require("http");
-   var https   = require("https");
-   var fs      = require("fs");
-   var md5     = require("md5");
+   var http   = require("http");
+   var https  = require("https");
+   var fs     = require("fs");
+   var md5    = require("md5");
+   var zlib   = require("zlib");
+   var stream = require("stream");
 
    /* Constants */
-   var devMode   = false;
-   var gzipMode  = false;
-   var BACKLOG   = 511;
-   var codes     = {
+   var devMode  = false;
+   var gzipMode = false;
+   var BACKLOG  = 511;
+   var codes    = {
       OK        : 200,
       NOT_FOUND : 404,
       UNMODIFIED: 304
@@ -35,9 +37,9 @@ module.exports = (function server() {
    function resHandler(resource, request, response) {
       var reply, code;
       if(etagUnchanged(request, resource) === true) {
-         writeResponse(response, resource, codes.UNMODIFIED);
+         respond(response, resource, codes.UNMODIFIED);
       } else {
-         reply = writeResponse.bind(null, response,
+         reply = respond.bind(null, response,
                                     resource, code);
          try {
             router.load(resource, reply);
@@ -48,9 +50,8 @@ module.exports = (function server() {
       }
    }
 
-   function writeResponse(response, resource, code, err, raw) {
-      var head  = makeHeader(resource);
-
+   function respond(response, resource, code, err, raw) {
+      var head   = makeHeader(resource);
       if(!err && code === undefined) {
          code = codes.OK;
       } else if(code === undefined) {
@@ -58,11 +59,33 @@ module.exports = (function server() {
       }
       response.writeHead(code, head);
       response.log.statusCode = code;
-      if(raw) {
-         response.write(raw);
-      }
-      response.end();
+      writeResponse(raw, response, resource);
       output.log(response, resource);
+   }
+
+   function writeResponse(raw, response, resource) {
+      var str;
+      if(raw) {
+         try {
+            str = new stream.Readable();
+            str._read = function() {};
+            str.push(raw);
+            str.push(null);
+            switch(resource.encoding) {
+               case "gzip":
+                  str.pipe(zlib.createGzip()).pipe(response);
+                  break;
+               case "deflate":
+                  str.pipe(zlib.createDeflate()).pipe(response);
+                  break;
+               default:
+                  str.pipe(response);
+                  break;
+            }
+         } catch(e) {
+            console.log(e);
+         }
+      }
    }
 
    function etagUnchanged(request, resource) {
@@ -123,7 +146,9 @@ module.exports = (function server() {
       var name  = resource.fileName;
       var head  = { };
       var map   = "/scripts-maps/" + name + ".map";
-
+      if(resource.encoding) {
+         head["Content-Encoding"] = resource.encoding;
+      }
       head["Content-Type"]  = resource.type;
       head["Cache-Control"] = makeCacheControl(resource);
       if(resource.static === true) {
