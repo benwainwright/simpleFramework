@@ -67,6 +67,9 @@ module.exports = (function Main() {
       dbInterface.setDB(db);
       router.init(config, dbInterface);
       parser.init(config);
+      if(gzip) {
+         parser.gzipOn();
+      }
       parser.insertEnvBuilder(envBuild);
       server.setRouter(router);
       server.setParser(parser);

@@ -1,61 +1,22 @@
 {
   "name": "simpleframework",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "postinstall": "node install.js",
-    "test": "mocha",
-    "start": "node main.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@bitbucket.org:benwainwright/htmlgen.git"
-  },
-  "contributors": [
-    {
-      "name": "Ben Wainwright",
-      "email": "bw12954@my.bristol.ac.uk"
-    },
-    {
-      "name": "Christina Pantopoli"
-    }
-  ],
-  "license": "ISC",
-  "devDependencies": {
-    "del": "^2.2.0",
-    "event-stream": "^3.3.2",
-    "gulp": "^3.9.1",
-    "gulp-autopolyfiller": "^1.2.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-complexity": "^0.3.2",
-    "gulp-concat": "^2.6.0",
-    "gulp-filesize": "0.0.6",
-    "gulp-jscs": "^3.0.2",
-    "gulp-jshint": "^2.0.0",
-    "gulp-mocha": "^2.2.0",
-    "gulp-nodemon": "^2.0.6",
-    "gulp-notify": "^2.2.0",
-    "gulp-order": "^1.1.1",
-    "gulp-responsive": "^2.2.0",
-    "gulp-sass": "^2.2.0",
-    "gulp-size": "^2.1.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-todo": "^4.1.0",
-    "gulp-uglify": "^1.5.3",
-    "gulp-uncss": "^1.0.5",
-    "jshint-stylish": "^2.1.0",
-    "mocha": "^2.4.5",
-    "request": "^2.69.0"
+    "start": "node ./bin/www"
   },
   "dependencies": {
-    "body-parser": "^1.15.0",
+    "body-parser": "~1.13.2",
     "clear-require": "^1.0.1",
-    "copyfiles": "^0.2.1",
+    "cookie-parser": "~1.3.5",
+    "debug": "~2.2.0",
+    "express": "~4.13.1",
     "formidable": "^1.0.17",
     "handlebars": "^4.0.5",
+    "jade": "~1.11.0",
     "md5": "^2.1.0",
-    "sqlite3": "^3.1.2"
-  },
-  "private": true
+    "morgan": "~1.6.1",
+    "serve-favicon": "~2.3.0",
+    "sqlite3": "^3.1.4"
+  }
 }
