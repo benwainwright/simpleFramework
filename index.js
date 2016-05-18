@@ -65,7 +65,7 @@ module.exports = (function Main() {
              config.dirs.database + "/interface";
       dbInterface = require(dbiPath);
       dbInterface.setDB(db);
-      router.init(config, dbInterface);
+      router.init(config, dbInterface, db);
       parser.init(config);
       if(gzip) {
          parser.gzipOn();
