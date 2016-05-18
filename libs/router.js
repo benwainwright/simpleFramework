@@ -178,8 +178,9 @@ module.exports = (function() {
       load       : load,
       notFound   : notFound,
       serverError: serverError,
-      init       : function(configObj) {
-         config = configObj;
+      init       : function(configObj, db) {
+         dbInterface = db;
+         config      = configObj;
          if(config.dirs.partials) {
             compilePartials(config.dirs.partials);
          }
