@@ -99,7 +99,7 @@ module.exports = (function() {
     * Same as above except doesn't require the period
     */
    function validPathSegment(segment) {
-      var isValid = new RegExp("^\\w+[a-zA-Z0-9_\\.-]*\\w+$");
+      var isValid = new RegExp("^(\\w+[a-zA-Z0-9_\\.-]*\\w+|\\w{1})$");
       if(isValid.test(segment) === true) {
          return true;
       }
