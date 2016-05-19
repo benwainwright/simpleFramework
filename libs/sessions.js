@@ -1,7 +1,8 @@
 (function() {
    "use strict";
 
-   var uuid     = require("node-uuid");
+   var crypto   = require("crypto");
+   var idSize   = 48;
    var sessions = { };
    var cookies, sessionId;
 
@@ -15,7 +16,6 @@
          sessions[sessionId] = { };
          response.setHeader("set-cookie", "sessionId=" + sessionId);
       }
-      console.log(sessions);
    };
 
    module.exports.set = function(key, value) {
@@ -27,6 +27,6 @@
    }
 
    function newSessionId() {
-      return uuid.v4();
+      return crypto.randomBytes(idSize).toString("hex");
    }
 }());

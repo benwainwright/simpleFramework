@@ -7,10 +7,10 @@
   "dependencies": {
     "body-parser": "~1.13.2",
     "clear-require": "^1.0.1",
+    "crypto": "0.0.3",
     "formidable": "^1.0.17",
     "handlebars": "^4.0.5",
     "md5": "^2.1.0",
-    "node-uuid": "^1.4.7",
     "sessions-plus": "^0.7.4",
     "sqlite3": "^3.1.4",
     "stream": "0.0.2"
