@@ -8,7 +8,7 @@ module.exports = (function server() {
    
    var router, config, returnObject,
        parser, servHttp, servHttps,
-       output;
+       output, sessionHandler;
 
    /* Node packages */
    var http     = require("http");
@@ -27,8 +27,6 @@ module.exports = (function server() {
       NOT_FOUND : 404,
       UNMODIFIED: 304
    };
-   
-
 
    function requestHandler(request, response) {
       var resource;
@@ -38,6 +36,7 @@ module.exports = (function server() {
 
    function resHandler(resource, request, response) {
       var reply, code;
+      sessionHandler.start(request, response);
       if(etagUnchanged(request, resource) === true) {
          respond(response, resource, codes.UNMODIFIED);
       } else {
@@ -247,6 +246,9 @@ module.exports = (function server() {
       },
       setOutput: function(theOutput) {
          output = theOutput;
+      },
+      setSessionHandler: function(session) {
+         sessionHandler = session;
       }
    };
 

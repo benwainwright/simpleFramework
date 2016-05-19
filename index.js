@@ -23,7 +23,8 @@ module.exports = (function Main() {
    var config, server,
        router, parser,
        envBuild, output,
-       dbLoader, dbInterface;
+       dbLoader, dbInterface,
+       sessions;
 
    /*
     * Parse command line, setting options as we go
@@ -50,6 +51,7 @@ module.exports = (function Main() {
       parser   = load.lib("requestParser", noCache);
       output   = load.lib("output", noCache);
       dbLoader = load.lib("database", noCache);
+      sessions = load.lib("sessions", noCache);
    }
 
    function configLoaded(config) {
@@ -70,10 +72,12 @@ module.exports = (function Main() {
       if(gzip) {
          parser.gzipOn();
       }
+      parser.insertSessionHandler(sessions);
       parser.insertEnvBuilder(envBuild);
       server.setRouter(router);
       server.setParser(parser);
       server.setOutput(output);
+      server.setSessionHandler(sessions);
       server.start(config, devMode, gzip);
    }
 

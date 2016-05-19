@@ -1,7 +1,8 @@
 module.exports = (function() {
    "use strict";
 
-   var config, environment;
+   var config, environment, 
+       sessionHandler;
 
    var gzip       = false;
    var url        = require("url");
@@ -108,18 +109,41 @@ module.exports = (function() {
       return false;
    }
 
+   function parseCookies(request) {
+      var parts;
+      var cookies = { }
+      if(request.headers.cookie !== undefined) {
+         parts = request.headers.cookie.split(";");
+         parts.forEach(function(cookie) {
+            var cookieParts      = cookie.split("=");
+            var key              = cookieParts[0].trim();
+            var val              = cookieParts[1];
+            val = val !== undefined? val.trim() : val;
+            cookies[key] = val;
+         });
+      }
+      request.cookies = cookies;
+   }
+
    function handlePOSTdata(res, req, resp, callb) {
       var form = new formidable.IncomingForm();
       form.parse(req, formParsed);
 
       function formParsed(err, fields, files) {
          environment.build(res, req, resp);
+         addSessionHandler(res, req);
          res.env.postData = fields;
          res.env.files    = files;
          callb(res, req, resp);
       }
    }
-
+   
+   function addSessionHandler(res, req) {
+      res.env.session = {};
+      res.env.session.get = sessionHandler.get;
+      res.env.session.set = sessionHandler.set;
+   }
+   
    return {
       init            : function(configObject) {
          config = configObject;
@@ -130,12 +154,16 @@ module.exports = (function() {
       insertEnvBuilder: function(builder) {
          environment = builder;
       },
+      insertSessionHandler: function(session) {
+         sessionHandler = session;
+      },
       parse           : function(req, resp, callb) {
          var lastInPath, res  = { };
          res.url       = url.parse(req.url, true);
          res.path      = reconstructPath(res.url.pathname);
          res.encoding  = parseEncoding(req);
          lastInPath    = res.path[res.path.length - 1];
+         parseCookies(req);
          if(validFileName(lastInPath)) {
             parseStaticUrl(res);
          } else {
@@ -145,6 +173,7 @@ module.exports = (function() {
             handlePOSTdata(res, req, resp, callb);
          } else {
             environment.build(res, req, res);
+            addSessionHandler(res, req);
             callb(res, req, resp);
          }
       }
