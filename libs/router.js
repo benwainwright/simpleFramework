@@ -10,6 +10,7 @@ module.exports = (function() {
    var fs              = require("fs");
    var handlebars      = require("handlebars");
    var sqlite          = require("sqlite3");
+   var session         = require("sessions-plus");
    var notFoundPage    = "notfound";
    var indexPage       = "index";
    var serverErrorPage = "error";
@@ -67,18 +68,22 @@ module.exports = (function() {
       if(resource.static === true) {
          loadStatic(resource, callback);
       } else {
-         loadHandler(resource.page, callback, resource);
+         loadHandler(resource, callback);
       }
    };
 
-   function loadHandler(page, callback, resource) {
-      var handler;
-      var templateName = page === ""? "index" : page;
+   function loadHandler(resource, callback) {
+      var handler, templateName;
+      if(resource.page === "") {
+         templateName = "index";
+      } else {
+         templateName = resource.page;
+      }
       try {
          handler = require(handlerPath(templateName));
-         getMarkup(page, callback, resource, handler);
+         getMarkup(resource.page, callback, resource, handler);
       } catch(e) {
-         handleLoadError(page, callback, resource);
+         handleLoadError(resource.page, callback);
       }
    }
 
@@ -105,6 +110,7 @@ module.exports = (function() {
                                               dbInterface,
                                               reply);
             database.serialize(dbHandler);
+            session.end(env);
          } else {
             data = initData(handler, env);
             serve(callback, raw, data);

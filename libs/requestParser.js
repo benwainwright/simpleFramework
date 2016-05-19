@@ -29,7 +29,7 @@ module.exports = (function() {
       if(gzip && request.headers["accept-encoding"] !== undefined) {
          enc = request.headers["accept-encoding"].split(",");
          for(i = 0; i < enc.length; i++) {
-            switch(encoding.trim()) {
+            switch(enc[i].trim()) {
                case "deflate": return "deflate";
                case "gzip"   : return "gzip";
             }

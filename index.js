@@ -33,7 +33,7 @@ module.exports = (function Main() {
       switch(val) {
          case "--NOREQCACHE" : noCache = true; break;
          case "--DEV"        : devMode = true; break;
-         case "--GZIP"       : gzip    = true; break;
+         case "--COMPRESSION": gzip    = true; break;
       }
 
       if(index === array.length - 1) {

@@ -5,18 +5,19 @@
  */
 module.exports = (function server() {
    "use strict";
-
+   
    var router, config, returnObject,
        parser, servHttp, servHttps,
        output;
 
    /* Node packages */
-   var http   = require("http");
-   var https  = require("https");
-   var fs     = require("fs");
-   var md5    = require("md5");
-   var zlib   = require("zlib");
-   var stream = require("stream");
+   var http     = require("http");
+   var https    = require("https");
+   var fs       = require("fs");
+   var md5      = require("md5");
+   var zlib     = require("zlib");
+   var stream   = require("stream");
+   var sessions = require("sessions-plus");
 
    /* Constants */
    var devMode  = false;
@@ -34,8 +35,18 @@ module.exports = (function server() {
       resource = parser.parse(request, response, resHandler);
    }
 
+   function setSessions(request, response) {
+      request = sessions.start(request);
+      if(request.session.cookieFresh === "true") {
+         response.setHeader("set-cookie", "uuid=" +
+                            request.session.cookie);
+         request.session.cookieFresh = "false";
+      }
+   }
+
    function resHandler(resource, request, response) {
       var reply, code;
+      setSessions(request, response);
       if(etagUnchanged(request, resource) === true) {
          respond(response, resource, codes.UNMODIFIED);
       } else {
@@ -192,8 +203,18 @@ module.exports = (function server() {
          serv     = module.createServer(requestHandler);
       }
       listenHandler = onListen.bind(null, protocol, host, port);
+      serv.on("error", onError);
       serv.listen(port, host, BACKLOG, listenHandler);
       return serv;
+   }
+
+   function onError(e) {
+      switch(e.code) {
+         case "EADDRINUSE":
+            console.log("Cannot start server "     +
+                        "(address already in use)");
+            break;
+      }
    }
 
    function startServer(serverConfig, dev, gzip) {
@@ -201,9 +222,8 @@ module.exports = (function server() {
       var host    = serverConfig.host;
       var hpPort  = serverConfig.ports.http;
       var hpsPort = serverConfig.ports.https;
-
       gzipMode = gzip;
-      config = serverConfig;
+      config   = serverConfig;
       if(dev) {
          output.print("Development mode on");
          devMode = dev;
@@ -211,8 +231,8 @@ module.exports = (function server() {
       output.print("Initializing server...");
       servHttp = setupServer(http, host, hpPort);
       if(config.ssl !== undefined) {
-         certs  = {
-            key : fs.readFileSync(config.ssl.key),
+         certs = {
+            key: fs.readFileSync(config.ssl.key),
             cert: fs.readFileSync(config.ssl.cert)
          };
          servHttps = setupServer(https, host, hpsPort, certs);
