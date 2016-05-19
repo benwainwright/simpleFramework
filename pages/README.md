@@ -73,3 +73,9 @@ The examples in the table below are parsed from the url `http://your.domain.com/
 |`url.querystring`|String|The raw querystring                           |`"?with=some&querystring=variables"`                |
 |`url.query`      |Object|The querystring as key value pairs            |`{with: "some", querystring:"variables"}`           |
 
+### Environment.session
+Session variables can be accessed as follows
+```
+environment.session.get(key);
+environment.session.set(key, value);
+```
