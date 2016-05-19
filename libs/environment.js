@@ -11,7 +11,6 @@ module.exports.build = (function() {
          };
          env.connection = makeConnObject(resource, request);
          env.url        = makeURLObject(resource);
-         env.session    = request.session;
       }
       resource.env = env;
    }

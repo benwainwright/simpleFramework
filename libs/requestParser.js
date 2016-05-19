@@ -96,7 +96,9 @@ module.exports = (function() {
    }
 
    /*
-    * Same as above except doesn't require the period
+    * Same as above except doesn't require the period,
+    * and will accept a single word character as an
+    * alternative
     */
    function validPathSegment(segment) {
       var isValid = new RegExp("^(\\w+[a-zA-Z0-9_\\.-]*\\w+|\\w{1})$");

@@ -17,7 +17,6 @@ module.exports = (function server() {
    var md5      = require("md5");
    var zlib     = require("zlib");
    var stream   = require("stream");
-   var sessions = require("sessions-plus");
 
    /* Constants */
    var devMode  = false;
@@ -29,32 +28,12 @@ module.exports = (function server() {
       UNMODIFIED: 304
    };
    
-   var requestHandler;
 
-   (function() {
-      var req;
 
-      requestHandler = function(request, response) {
-         var resource;
-         req = request;
-         initLogObject(request, response);
-         setSession(request, response);
-         response.on("finish", saveSession);
-         resource = parser.parse(request, response, resHandler);
-      }
-
-      function saveSession() {
-         sessions.end(req);
-      }
-   }());
-
-   function setSession(request, response) {
-      request = sessions.start(request);
-      if(request.session.cookieFresh === true) {
-         response.setHeader("set-cookie", "uuid=" +
-                            request.session.cookie);
-         request.session.cookieFresh = false;
-      }
+   function requestHandler(request, response) {
+      var resource;
+      initLogObject(request, response);
+      resource = parser.parse(request, response, resHandler);
    }
 
    function resHandler(resource, request, response) {
@@ -62,8 +41,8 @@ module.exports = (function server() {
       if(etagUnchanged(request, resource) === true) {
          respond(response, resource, codes.UNMODIFIED);
       } else {
-         reply = respond.bind(null, response,
-                                    resource, code);
+         reply = respond.bind(null, response, resource,
+                                    request, code);
          try {
             router.load(resource, reply);
             response.servedWith = router.last();
@@ -73,7 +52,8 @@ module.exports = (function server() {
       }
    }
 
-   function respond(response, resource, code, err, raw) {
+   function respond(response, resource, request,
+                    code, err, raw) {
       var head   = makeHeader(resource);
       if(!err && code === undefined) {
          code = codes.OK;

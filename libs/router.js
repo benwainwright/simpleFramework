@@ -10,7 +10,6 @@ module.exports = (function() {
    var fs              = require("fs");
    var handlebars      = require("handlebars");
    var sqlite          = require("sqlite3");
-   var session         = require("sessions-plus");
    var notFoundPage    = "notfound";
    var indexPage       = "index";
    var serverErrorPage = "error";
