@@ -68,25 +68,25 @@ module.exports = (function() {
       if(resource.static === true) {
          loadStatic(resource, callback);
       } else {
-         loadHandler(resource, callback);
+         loadHandler(resource.page, callback, resource);
       }
    };
 
-   function loadHandler(resource, callback) {
+   function loadHandler(page, callback, resource) {
       var handler, templateName;
-      if(resource.page === "") {
+      if(page === "") {
          templateName = "index";
       } else {
-         templateName = resource.page;
+         templateName = page;
       }
       try {
          handler = require(handlerPath(templateName));
-         getMarkup(resource.page, callback, resource, handler);
+         getMarkup(page, callback, resource, handler);
       } catch(e) {
-         handleLoadError(resource.page, callback);
+         handleLoadError(page, callback);
       }
    }
-
+   
    function getMarkup(page, callback, resource, handler) {
       var next;
       var env = resource !== undefined? resource.env : { };
@@ -110,7 +110,6 @@ module.exports = (function() {
                                               dbInterface,
                                               reply);
             database.serialize(dbHandler);
-            session.end(env);
          } else {
             data = initData(handler, env);
             serve(callback, raw, data);

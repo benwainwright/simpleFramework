@@ -28,25 +28,37 @@ module.exports = (function server() {
       NOT_FOUND : 404,
       UNMODIFIED: 304
    };
+   
+   var requestHandler;
 
-   function requestHandler(request, response) {
-      var resource;
-      initLogObject(request, response);
-      resource = parser.parse(request, response, resHandler);
-   }
+   (function() {
+      var req;
 
-   function setSessions(request, response) {
+      requestHandler = function(request, response) {
+         var resource;
+         req = request;
+         initLogObject(request, response);
+         setSession(request, response);
+         response.on("finish", saveSession);
+         resource = parser.parse(request, response, resHandler);
+      }
+
+      function saveSession() {
+         sessions.end(req);
+      }
+   }());
+
+   function setSession(request, response) {
       request = sessions.start(request);
-      if(request.session.cookieFresh === "true") {
+      if(request.session.cookieFresh === true) {
          response.setHeader("set-cookie", "uuid=" +
                             request.session.cookie);
-         request.session.cookieFresh = "false";
+         request.session.cookieFresh = false;
       }
    }
 
    function resHandler(resource, request, response) {
       var reply, code;
-      setSessions(request, response);
       if(etagUnchanged(request, resource) === true) {
          respond(response, resource, codes.UNMODIFIED);
       } else {
