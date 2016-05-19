@@ -19,6 +19,12 @@ var mockEnvBuild = {
    }
 };
 
+var mockSessions = {
+   set  : function() {},
+   get  : function() {},
+   start: function() {}
+};
+
 var mockRouter = (function() {
    var mockCallback;
    return {
@@ -44,6 +50,7 @@ describe("Request Parser", function() {
       parser.insertEnvBuilder(mockEnvBuild);
       server.setRouter(mockRouter);
       server.setParser(parser);
+      server.setSessionHandler(mockSessions);
       server.setOutput(mockOutput);
       server.start(config);
    });

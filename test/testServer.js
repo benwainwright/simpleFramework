@@ -35,11 +35,18 @@ var mockOutput = {
    print: function() {}
 };
 
+var mockSessions = {
+   set  : function() {},
+   get  : function() {},
+   start: function() {}
+};
+
 describe("server", function() {
    before(function () {
       server.setRouter(mockRouter);
       server.setParser(mockParser);
       server.setOutput(mockOutput);
+      server.setSessionHandler(mockSessions);
       server.start(config);
    });
 

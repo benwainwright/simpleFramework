@@ -24,8 +24,13 @@ var config = {
       }
    }
 };
-
+var mockSessions = {
+   set  : function() {},
+   get  : function() {},
+   start: function() {}
+};
 parser.insertEnvBuilder(mockEnvBuild);
+parser.insertSessionHandler(mockSessions);
 parser.init(config);
 
 describe("requestParser.js", function() {
