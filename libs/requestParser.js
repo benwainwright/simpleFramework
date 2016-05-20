@@ -131,7 +131,6 @@ module.exports = (function() {
 
       function formParsed(err, fields, files) {
          environment.build(res, req, resp);
-         addSessionHandler(res, req);
          res.env.postData = fields;
          res.env.files    = files;
          callb(res, req, resp);
