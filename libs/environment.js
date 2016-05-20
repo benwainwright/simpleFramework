@@ -1,9 +1,19 @@
+/**
+ * This module is responsible for setting up the environment object
+ * that is passed into handlers. This object provides information about
+ * the request (such as request type and query data) along with methods
+ * which can be used to perform session handling and things like
+ * redirection
+ */
 module.exports = (function() {
    "use strict";
 
    var sessions, environment,
-      theResource, theResponse;
-   
+       theResource, theResponse;
+
+   /**
+    * Status code to send when performing a redirect
+    */
    var REDIRECT_CODE = 302;
 
    function buildEnvironment(resource, request, response) {
