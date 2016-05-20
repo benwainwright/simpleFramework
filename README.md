@@ -9,6 +9,7 @@ framework.start();
 
 ## Features
 Running this script will operate a built in web server with the following features
+* asfsadf
 * GZIP/Deflate compression
 * Delivery of XHTML content-type where supported, otherwise plaintext HTML
 * Static file delivery with ETag/304 support to enable client caching
