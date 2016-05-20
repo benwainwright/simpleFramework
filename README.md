@@ -1,4 +1,3 @@
-<link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
 # Simple Framework
 As the name suggests, this package is a simple framework that allows you to build a working web application framework easily with a limited amount of coding. This project is still a work in progress and was originally created as a submission for the University of Bristol Computer Science (Conversion) MSc. If anyone wishes to contribute, please feel free to submit a pull request.
 
@@ -16,7 +15,7 @@ Running this script will operate a built in web server with the following featur
 - Static file delivery with ETag/304 support to enable client caching
 - Dynamic routing of non-static urls to Javascript 'handlers' using 'configuration by convention'
 - Automatic binding of handlers to [Handlebars](http://handlebarsjs.com) templates
-- SSH encryption
+- SSL encryption
 - Automatically parsed GET/POST data available for use by handlers 
 - Automatically create/load sqlite database
 - Automatically run user provided drop/create script on creation of sqlite database
@@ -52,3 +51,19 @@ The dirs object contains locations of all directories used by the framework. It 
 |partials |String|Handlebars partial templates                                                                               |
 |resources|String|Static file directories                                                                                    |
 |database |String|User supplied setup SQL script and database API 
+
+### Ports
+
+|Key  |Type   |Description                                  |
+|-----|-------|---------------------------------------------|
+|http |Integer|Port number to listen on for the HTTP server |
+|https|Integer|Port number to listen on for the HTTPS server|
+
+### Types
+Each key of the types object represents a file extension for a type of static file that can be served by this framework. Note that if a file extension is not listed in this object, the server *will not be able to serve that file*. Each type must contain the following keys:
+
+|Key     |Type   |Description                                                                                                                                                |
+|--------|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+|dirs    |Array  |An array of strings containing the names of all the directories (within the resources directory specified above) that this kind of file can be served from.|
+|type    |String |The content type header that this file type will be served with                                                                                            |
+|expires |Integer|How long (in seconds) before this file type is considered 'stale' (for caching purposes)                                                                   |
