@@ -28,12 +28,12 @@ module.exports = (function() {
          environment.connection = makeConnObject(resource, request);
          environment.url = makeURLObject(resource);
       }
-      setMethods(response);
+      setMethods();
       addSessionHandler();
       resource.env  = environment;
    }
   
-   function setMethods(response) {
+   function setMethods() {
       environment.setHeader     = setHeader;
       environment.redirect      = redirect;
       environment.setStatusCode = setStatusCode;

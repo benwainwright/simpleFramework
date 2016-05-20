@@ -45,14 +45,18 @@ This function must return a string which will be served directly to the client a
 ## Environment
 Both functions have access to the `environment` object as the first argument, should you want it. 
 
-|Name                    |Type  |Description                                                     |Example                                                                  |
-|:----------------------:|:----:|:--------------------------------------------------------------:|:-----------------------------------------------------------------------:|
-|`environemnt.method`    |String|The HTTP method used by this request                            |`"GET"`                                                                  |
-|`environment.headers`   |Object|HTTP headers sent in the request in key:value form              |`{"accept-encoding": "gzip, deflate, sdch", ...}`                        |
-|`environment.postData`  |Object|Form data presented in the same format as above                 |Same as url.query assuming fields "with", and "querystring" exist in form|
-|`environment.type`      |String|The `content-type` header that is to be served with this request|`"application/xhtml+xml"`                                                |
-|`environment.connection`|Object|Information about the socket connection such as ip address      |See below                                                                |
-|`environment.url`       |Object|The URL that was requested by the client, parsed                |See Below                                                                |
+|Name                                |Type  |Description                                                     |Example                                                                  |
+|:----------------------------------:|:----:|:--------------------------------------------------------------:|:-----------------------------------------------------------------------:|
+|`environemnt.method`                |String|The HTTP method used by this request                            |`"GET"`                                                                  |
+|`environment.headers`               |Object|HTTP headers sent in the request in key:value form              |`{"accept-encoding": "gzip, deflate, sdch", ...}`                        |
+|`environment.postData`              |Object|Form data presented in the same format as above                 |Same as url.query assuming fields "with", and "querystring" exist in form|
+|`environment.type`                  |String|The `content-type` header that is to be served with this request|`"application/xhtml+xml"`                                                |
+|`environment.connection`            |Object|Information about the socket connection such as ip address      |See below                                                                |
+|`environment.url`                   |Object|The URL that was requested by the client, parsed                |See below                                                                |
+|`environment.session`               |Object|Gives you access to session variables                           |See below                                                                |
+|`environment.setHeader(key, value)` |Method|Allows you to set a HTTP header for the response                |`environment.setHeader("Location", "wwww.google.com");`                  |
+|`environment.redirect(location)`    |Method|Sets the location HTTP header along with the correct status code|`environment.redirect("wwww.google.com");`                               |
+|`environment.setStatusCode(code)`   |Method|Sets the value of the HTTP status code fore the response        |`environment.setStatusCode(404);`                                        |
 
 ### Environment.connection
 
