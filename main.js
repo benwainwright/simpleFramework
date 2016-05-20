@@ -19,12 +19,13 @@ module.exports = (function Main() {
    var noCache = false;
    var devMode = false;
    var gzip    = false;
+   var ssh     = false;
 
    var config, server,
        router, parser,
        envBuild, output,
        dbLoader, dbInterface,
-       sessions;
+       sessions, ssh;
 
    /*
     * Parse command line, setting options as we go
@@ -35,6 +36,7 @@ module.exports = (function Main() {
          case "--NOREQCACHE" : noCache = true; break;
          case "--DEV"        : devMode = true; break;
          case "--COMPRESSION": gzip    = true; break;
+         case "--SSH"        : ssh     = true; break;
       }
 
       if(index === array.length - 1) {

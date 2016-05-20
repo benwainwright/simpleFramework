@@ -168,7 +168,6 @@ module.exports = (function() {
             handlePOSTdata(res, req, resp, callb);
          } else {
             environment.build(res, req, resp);
-            addSessionHandler(res, req);
             callb(res, req, resp);
          }
       }

@@ -16,7 +16,7 @@ module.exports = (function() {
       }
       env.setHeader = response.setHeader;
       resource.env = env;
-      addSessionHandler(resource, request);
+      addSessionHandler(resource);
    }
 
    function makeConnObject(resource, request) {
@@ -33,10 +33,10 @@ module.exports = (function() {
       return connObject;
    }
 
-   function addSessionHandler(res, req) {
+   function addSessionHandler(res) {
       res.env.session = {};
-      res.env.session.get = sessionHandler.get;
-      res.env.session.set = sessionHandler.set;
+      res.env.session.get = sessions.get;
+      res.env.session.set = sessions.set;
    }
 
    function makeURLObject(resource) {
