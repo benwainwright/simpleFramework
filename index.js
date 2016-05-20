@@ -74,6 +74,7 @@ module.exports = (function Main() {
       }
       parser.insertSessionHandler(sessions);
       parser.insertEnvBuilder(envBuild);
+      envBuild.setSessionHandler(sessions);
       server.setRouter(router);
       server.setParser(parser);
       server.setOutput(output);

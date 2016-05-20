@@ -1,7 +1,9 @@
-module.exports.build = (function() {
+module.exports = (function() {
    "use strict";
 
-   function buildEnvironment(resource, request) {
+   var sessions;
+
+   function buildEnvironment(resource, request, response) {
       var env;
       if(resource !== undefined) {
          env = {
@@ -10,15 +12,17 @@ module.exports.build = (function() {
             type   : resource.type
          };
          env.connection = makeConnObject(resource, request);
-         env.url        = makeURLObject(resource);
+         env.url = makeURLObject(resource);
       }
+      env.setHeader = response.setHeader;
       resource.env = env;
+      addSessionHandler(resource, request);
    }
 
    function makeConnObject(resource, request) {
       var con, connObject;
-      if(request         !== undefined &&
-         request.socket  !== undefined) {
+      if(request !== undefined &&
+         request.socket !== undefined) {
          con = request.socket;
          connObject = {
             address: con.remoteAddress,
@@ -29,9 +33,15 @@ module.exports.build = (function() {
       return connObject;
    }
 
+   function addSessionHandler(res, req) {
+      res.env.session = {};
+      res.env.session.get = sessionHandler.get;
+      res.env.session.set = sessionHandler.set;
+   }
+
    function makeURLObject(resource) {
       var urlObject;
-      if(resource     !== undefined &&
+      if(resource !== undefined &&
          resource.url !== undefined) {
          urlObject = {
             raw        : resource.url.path,
@@ -43,5 +53,10 @@ module.exports.build = (function() {
       return urlObject;
    }
 
-   return buildEnvironment;
+   return {
+      build            : buildEnvironment,
+      setSessionHandler: function(sessionHandler) {
+         sessions = sessionHandler;
+      }
+   };
 }());

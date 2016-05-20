@@ -137,12 +137,7 @@ module.exports = (function() {
          callb(res, req, resp);
       }
    }
-   
-   function addSessionHandler(res, req) {
-      res.env.session = {};
-      res.env.session.get = sessionHandler.get;
-      res.env.session.set = sessionHandler.set;
-   }
+  
    
    return {
       init            : function(configObject) {
@@ -172,7 +167,7 @@ module.exports = (function() {
          if(req.method === "POST") {
             handlePOSTdata(res, req, resp, callb);
          } else {
-            environment.build(res, req, res);
+            environment.build(res, req, resp);
             addSessionHandler(res, req);
             callb(res, req, resp);
          }
