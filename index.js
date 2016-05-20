@@ -14,18 +14,22 @@
  */
 module.exports = (function Main() {
    "use strict";
-
-   var load    = require("./load");
-   var noCache = false;
+   
+   /* Default settings */
    var devMode = false;
    var gzip    = false;
-   var ssh     = false;
+   var ssl     = false;
+   var libs    = "./libs"
 
-   var config, server,
-       router, parser,
-       envBuild, output,
-       dbLoader, dbInterface,
-       sessions, ssh;
+   /* Local modules */
+   var config   = require(libs + "/config");
+   var server   = require(libs + "/server");
+   var router   = require(libs + "/router");
+   var envBuild = require(libs + "/environment");
+   var parser   = require(libs + "/requestParser");
+   var output   = require(libs + "/output");
+   var dbLoader = require(libs + "/database");
+   var sessions = require(libs + "/sessions");
 
    /*
     * Parse command line, setting options as we go
@@ -33,27 +37,14 @@ module.exports = (function Main() {
     */
    function parseCommandLine(val, index, array) {
       switch(val) {
-         case "--NOREQCACHE" : noCache = true; break;
          case "--DEV"        : devMode = true; break;
          case "--COMPRESSION": gzip    = true; break;
-         case "--SSH"        : ssh     = true; break;
+         case "--SSL"        : ssl     = true; break;
       }
 
       if(index === array.length - 1) {
-         loadModules();
          config.onLoad(configLoaded);
       }
-   }
-
-   function loadModules() {
-      config   = load.lib("config", noCache);
-      server   = load.lib("server", noCache);
-      router   = load.lib("router", noCache);
-      envBuild = load.lib("environment", noCache);
-      parser   = load.lib("requestParser", noCache);
-      output   = load.lib("output", noCache);
-      dbLoader = load.lib("database", noCache);
-      sessions = load.lib("sessions", noCache);
    }
 
    function configLoaded(config) {
@@ -67,7 +58,7 @@ module.exports = (function Main() {
    function dbLoaded(db, config) {
       var dbiPath = process.cwd() + "/" +
              config.dirs.database + "/interface";
-      dbInterface = require(dbiPath);
+      var dbInterface = require(dbiPath);
       dbInterface.setDB(db);
       router.init(config, dbInterface, db);
       parser.init(config);
