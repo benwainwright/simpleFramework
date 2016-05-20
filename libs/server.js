@@ -35,13 +35,13 @@ module.exports = (function server() {
    }
 
    function resHandler(resource, request, response) {
-      var reply, code;
+      var reply;
       sessionHandler.start(request, response);
       if(etagUnchanged(request, resource) === true) {
-         respond(response, resource, codes.UNMODIFIED);
+         resource.statusCode = codes.UNMODIFIED;
+         respond(response, resource);
       } else {
-         reply = respond.bind(null, response, resource,
-                                    request, code);
+         reply = respond.bind(null, response, resource);
          try {
             router.load(resource, reply);
             response.servedWith = router.last();
@@ -51,13 +51,15 @@ module.exports = (function server() {
       }
    }
 
-   function respond(response, resource, request,
-                    code, err, raw) {
-      var head   = makeHeader(resource);
-      if(!err && code === undefined) {
+   function respond(response, resource, err, raw) {
+      var code;
+      var head = makeHeader(resource);
+      if(!err && resource.statusCode === undefined) {
          code = codes.OK;
-      } else if(code === undefined) {
+      } else if(resource.statusCode === undefined) {
          code = codes.NOT_FOUND;
+      } else {
+         code = resource.statusCode;
       }
       response.writeHead(code, head);
       response.log.statusCode = code;

@@ -1,22 +1,46 @@
 module.exports = (function() {
    "use strict";
 
-   var sessions;
+   var sessions, environment,
+      theResource, theResponse;
+   
+   var REDIRECT_CODE = 302;
 
    function buildEnvironment(resource, request, response) {
-      var env;
+      theResource = resource;
+      theResponse = response;
       if(resource !== undefined) {
-         env = {
+         environment = {
             method : request.method,
             headers: request.headers,
             type   : resource.type
          };
-         env.connection = makeConnObject(resource, request);
-         env.url = makeURLObject(resource);
+         environment.connection = makeConnObject(resource, request);
+         environment.url = makeURLObject(resource);
       }
-      env.setHeader = response.setHeader;
-      resource.env = env;
-      addSessionHandler(resource);
+      setMethods(response);
+      addSessionHandler();
+      resource.env  = environment;
+   }
+  
+   function setMethods(response) {
+      environment.setHeader     = setHeader;
+      environment.redirect      = redirect;
+      environment.setStatusCode = setStatusCode;
+   }  
+   
+   function setHeader(key, value) {
+      theResponse.setHeader(key, value);
+   }
+
+   function redirect(location, code) {
+      environment.setHeader("Location", location);
+      code = code === undefined? REDIRECT_CODE : code; 
+      environment.setStatusCode(code);
+   }
+   
+   function setStatusCode(code) {
+      theResource.statusCode = code;
    }
 
    function makeConnObject(resource, request) {
@@ -33,10 +57,10 @@ module.exports = (function() {
       return connObject;
    }
 
-   function addSessionHandler(res) {
-      res.env.session = {};
-      res.env.session.get = sessions.get;
-      res.env.session.set = sessions.set;
+   function addSessionHandler() {
+      environment.session = {};
+      environment.session.get = sessions.get;
+      environment.session.set = sessions.set;
    }
 
    function makeURLObject(resource) {
