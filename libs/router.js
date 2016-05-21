@@ -101,16 +101,21 @@ module.exports = (function() {
    }
 
    function getData(callback, handler, env, err, raw) {
-      var reply, data, dbHandler;
+      var reply, dbHandler;
+      var data = initData(handler, env);
       if(!err) {
          if(handler.database !== undefined) {
             reply = serve.bind(null, callback, raw);
             dbHandler = handler.database.bind(null, env,
                                               dbInterface,
-                                              reply);
+                                              data, reply);
             database.serialize(dbHandler);
          } else {
-            data = initData(handler, env);
+            if(typeof handler.data === "function") {
+               data = handler.data(env, data);
+            } else if(handler.data !== undefined) {
+               data = combineObjects(handler.data, data);
+            }
             serve(callback, raw, data);
          }
       } else {
@@ -118,13 +123,32 @@ module.exports = (function() {
       }
    }
 
-   function initData(handler, environment) {
-      var data;
-      if(typeof handler.data === "function") {
-         data = handler.data(environment, dbInterface);
-      } else {
-         data = handler.data;
+   function combineObjects(object1, object2) {
+      var attr;
+      var newObject = { }
+
+      for(attr in object1) {
+         if(object1.hasOwnProperty(attr)) {
+            newObject[attr] = object1[attr];
+         }
       }
+      for(attr in object2) {
+         if(object2.hasOwnProperty(attr)) {
+            newObject[attr] = object2[attr];
+         }
+      }
+      return newObject;
+   }
+
+   function initData(handler, environment) {
+      var globalHandler;
+      var data = { };
+      var location = process.cwd() + "/" +
+                     config.globalHandler;
+      try {
+         globalHandler = require(location);
+         data          = globalHandler.global(environment, data);
+      } catch(e) { /* Ignore if file doesn't exist */ }
       return data;
    }
 

@@ -1,4 +1,5 @@
 {
+   "globalHandler": "pages/global.js",
    "dirs": {
       "templates" : "pages/templates",
       "handlers"  : "pages/handlers",
