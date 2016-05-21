@@ -38,11 +38,9 @@ module.exports = (function server() {
       var reply;
       sessionHandler.start(request, response);
       if(etagUnchanged(request, resource) === true) {
-         console.log("UNCHANGED");
          resource.statusCode = codes.UNMODIFIED;
          respond(response, resource);
       } else {
-         console.log("CHANGED");
          reply = respond.bind(null, response, resource);
          try {
             router.load(resource, reply);

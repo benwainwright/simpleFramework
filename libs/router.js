@@ -1,8 +1,7 @@
 /*
- * This module is given the parsed 'resource'
- * object by the server and is responsible for
- * actually finding the resource and returning
- * the correct data
+ * This module is given the parsed 'resource' object by the server 
+ * and is responsible for actually finding the resource, binding data handlers
+ * where needed, then generating or loading the final page output   
  */
 module.exports = (function() {
    "use strict";
