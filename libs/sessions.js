@@ -1,29 +1,38 @@
+/**
+ * Responsible for storing, creating and providing
+ * access to session data. Session data is stored in
+ * memory and session ids are created using 48
+ * crypto-random bytes converted to a hex string
+ */
 (function() {
    "use strict";
 
    var crypto   = require("crypto");
    var idSize   = 48;
    var sessions = { };
-   var cookies, sessionId;
+   var cookies, resource;
 
-   module.exports.start = function(request, response) {
-      cookies = request.cookies;
+   module.exports.start = function(request, response,
+                                   theResource) {
+      cookies  = request.cookies;
+      resource = theResource;
       if(cookies.sessionId !== undefined &&
          sessions[cookies.sessionId] !== undefined) {
-         sessionId = cookies.sessionId;
+         resource.sessionId = cookies.sessionId;
       } else {
-         sessionId = newSessionId();
-         sessions[sessionId] = { };
-         response.setHeader("set-cookie", "sessionId=" + sessionId);
+         resource.sessionId = newSessionId();
+         sessions[resource.sessionId] = { };
+         response.setHeader("set-cookie", "sessionId=" +
+                            resource.sessionId);
       }
    };
 
    module.exports.set = function(key, value) {
-     sessions[sessionId][key] = value;
+      sessions[resource.sessionId][key] = value;
    }
 
    module.exports.get = function(key) {
-      return sessions[sessionId][key];
+      return sessions[resource.sessionId][key];
    }
 
    function newSessionId() {

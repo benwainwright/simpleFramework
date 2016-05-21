@@ -36,7 +36,7 @@ module.exports = (function server() {
 
    function resHandler(resource, request, response) {
       var reply;
-      sessionHandler.start(request, response);
+      sessionHandler.start(request, response, resource);
       if(etagUnchanged(request, resource) === true) {
          resource.statusCode = codes.UNMODIFIED;
          respond(response, resource);
