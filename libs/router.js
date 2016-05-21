@@ -176,7 +176,8 @@ module.exports = (function() {
       var options = { strict: true };
       try {
          string = markup.toString();
-         // Non strict is deliberate here
+         // Non strict is deliberate here because data can be undefined
+         // or NULL
          if(data) {
             template = handlebars.compile(string, options);
             callback(false, template(data));
