@@ -139,19 +139,19 @@ module.exports = (function() {
   
    
    return {
-      init            : function(configObject) {
+      init                : function(configObject) {
          config = configObject;
       },
-      gzipOn          : function() {
+      gzipOn              : function() {
          gzip = true;
       },
-      insertEnvBuilder: function(builder) {
+      insertEnvBuilder    : function(builder) {
          environment = builder;
       },
       insertSessionHandler: function(session) {
          sessionHandler = session;
       },
-      parse           : function(req, resp, callb) {
+      parse               : function(req, resp, callb) {
          var lastInPath, res  = { };
          res.url       = url.parse(req.url, true);
          res.path      = reconstructPath(res.url.pathname);
